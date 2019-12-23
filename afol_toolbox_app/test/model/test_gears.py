@@ -2,7 +2,7 @@ from unittest import TestCase
 
 # coding=utf-8
 from afol_toolbox_app.model.gears import Gear8, Gear16, TurntableGear60, WormGear, Gear, NormalGear, GearCombination, \
-    GearRatio
+    GearRatio, CombinationFinder, Gear12, Gear20, Gear28, TurntableGear28, TurntableGear56, Gear40, Gear24, Gear36
 
 
 class TestGears(TestCase):
@@ -67,3 +67,42 @@ class TestGears(TestCase):
         self.assertFalse(ra.is_torque_decreased())
         self.assertFalse(ra.is_torque_increased())
         self.assertTrue(ra.is_1to1())
+
+    def test_combinationfinder_all_combinations1(self):
+        expected = [
+            GearCombination(Gear8.gi(), Gear16.gi()),
+            GearCombination(Gear12.gi(), Gear24.gi()),
+            GearCombination(Gear20.gi(), Gear40.gi()),
+            GearCombination(Gear28.gi(), TurntableGear56.gi()),
+            GearCombination(TurntableGear28.gi(), TurntableGear56.gi()),
+        ]
+        actual = CombinationFinder.all_combinations(GearRatio.of_int_ratio(1, 2))
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_all_combinations2(self):
+        expected = [
+            GearCombination(Gear8.gi(), Gear24.gi()),
+            GearCombination(Gear12.gi(), Gear36.gi()),
+            GearCombination(Gear20.gi(), TurntableGear60.gi()),
+        ]
+        actual = CombinationFinder.all_combinations(GearRatio.of_int_ratio(1, 3))
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_all_combinations3(self):
+        expected = [
+            GearCombination(Gear8.gi(), Gear8.gi()),
+            GearCombination(Gear12.gi(), Gear12.gi()),
+            GearCombination(Gear16.gi(), Gear16.gi()),
+            GearCombination(Gear20.gi(), Gear20.gi()),
+            GearCombination(Gear24.gi(), Gear24.gi()),
+            GearCombination(Gear28.gi(), Gear28.gi()),
+            GearCombination(Gear28.gi(), TurntableGear28.gi()),
+            GearCombination(Gear36.gi(), Gear36.gi()),
+            GearCombination(Gear40.gi(), Gear40.gi()),
+            GearCombination(TurntableGear28.gi(), Gear28.gi()),
+            GearCombination(TurntableGear28.gi(), TurntableGear28.gi()),
+            GearCombination(TurntableGear56.gi(), TurntableGear56.gi()),
+            GearCombination(TurntableGear60.gi(), TurntableGear60.gi()),
+        ]
+        actual = CombinationFinder.all_combinations(GearRatio.of_int_ratio(1, 1))
+        self.assertEqual(expected, actual)

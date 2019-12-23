@@ -39,14 +39,21 @@ class Gear(util.Singleton):
         return driver_cls.can_be_driver_of(cls)
 
     @classmethod
-    def with_num_teeth(cls, num_teeth) -> Optional[Type]:
+    def with_num_teeth(cls, num_teeth) -> List[Type]:
+        result = []
         for gear in cls.get_all():
             if gear.gi().teeth == num_teeth:
-                return gear
-        return None
+                result.append(gear)
+        return result
 
     def __str__(self):
         return self.__class__.__name__
+
+    def __repr__(self) -> str:
+        return str(self) + ".gi()"
+
+    def __eq__(self, other):
+        return isinstance(other, Gear) and self.teeth == other.teeth and self.image_name == other.image_name
 
 
 class NormalGear(Gear):
@@ -169,6 +176,12 @@ class GearCombination(object):
     def __str__(self):
         return f"GearCombination[{self.driver}:{self.follower}]"
 
+    def __repr__(self) -> str:
+        return f"GearCombination({self.driver}.gi(), {self.follower}.gi())"
+
+    def __eq__(self, other):
+        return isinstance(other, GearCombination) and self.driver == other.driver and self.follower == other.follower
+
 
 class GearRatio(object):
     """
@@ -253,16 +266,17 @@ class GearRatio(object):
         return isinstance(o, GearRatio) and o.a == self.a and o.b == self.b
 
 
-class RatioFinder(object):
+class CombinationFinder(object):
     @staticmethod
-    def find_all_combinations(ratio: GearRatio):
+    def all_combinations(ratio: GearRatio):
         result = []
         for driver in Gear.get_all():
-            follower_teeth = driver.teeth / ratio.a * ratio.b
+            follower_teeth = driver.gi().teeth / ratio.a * ratio.b
             if follower_teeth == 1 or follower_teeth % 1:
-                # wormgear can't be follower and teeth can't be decimal number
+                # worm gear can't be follower and teeth can't be decimal number
                 continue
-            follower = Gear.with_num_teeth(follower_teeth)
-            if isinstance(follower, Gear):
-                result.append(GearCombination(driver.gi(), follower.gi()))
+            followers = Gear.with_num_teeth(follower_teeth)
+            for fo in followers:
+                # noinspection PyUnresolvedReferences
+                result.append(GearCombination(driver.gi(), fo.gi()))
         return result

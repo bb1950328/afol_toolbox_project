@@ -28,6 +28,7 @@ class Singleton(object):
         pass arguments for __init__(*args, **kwargs) as *args and *kwargs, if needed
         """
         if cls not in cls._instances.keys():
+            # noinspection PyArgumentList
             cls._instances[cls] = cls(*args, **kwargs)
         return cls._instances[cls]
 
