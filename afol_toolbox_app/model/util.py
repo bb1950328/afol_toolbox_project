@@ -1,5 +1,4 @@
 # coding=utf-8
-import math
 from decimal import Decimal
 from typing import Dict, Union, Tuple
 
@@ -54,3 +53,30 @@ def expand_to_int_fraction(a: Union[int, float, Decimal], b: Union[int, float, D
         return ratio.as_integer_ratio()
     else:
         return a, b
+
+
+def shorten_fraction(a, b):
+    primes = get_prime_numbers_until(min(a, b) + 1)
+    for num in primes:
+        if a < num or b < num:
+            break
+        a_bak = a
+        b_bak = b
+        while (not a % 1) and (not b % 1):
+            a_bak = a
+            b_bak = b
+            a /= num
+            b /= num
+        a = a_bak
+        b = b_bak
+    return int(a), int(b)
+
+
+def get_prime_numbers_until(until: int):
+    result = [1 for i in range(until)]
+    for i in range(2, int(until)):
+        x = 2 * i
+        while x < until:
+            result[x] = 0
+            x += i
+    return [num for num in range(until) if result[num]][2:]

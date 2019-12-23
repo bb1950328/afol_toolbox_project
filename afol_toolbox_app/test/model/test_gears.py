@@ -68,6 +68,14 @@ class TestGears(TestCase):
         self.assertFalse(ra.is_torque_increased())
         self.assertTrue(ra.is_1to1())
 
+    def test_gear_deviation_to(self):
+        ra1 = GearRatio.of_int_ratio(123, 321)
+        ra2 = GearRatio.of_int_ratio(1234, 3250)
+        de1 = ra1.deviation_to(ra2)
+        de2 = ra2.deviation_to(ra1)
+        self.assertAlmostEqual(de1, de2)
+        self.assertAlmostEqual(0.00348526, de1)
+
     def test_combinationfinder_all_combinations1(self):
         expected = [
             GearCombination(Gear8.gi(), Gear16.gi()),
@@ -106,3 +114,35 @@ class TestGears(TestCase):
         ]
         actual = CombinationFinder.all_combinations(GearRatio.of_int_ratio(1, 1))
         self.assertEqual(expected, actual)
+
+    def test_combinationfinder_nearest_combinations1(self):
+        expected = [
+            GearCombination(Gear20.gi(), Gear28.gi()),
+            GearCombination(Gear40.gi(), TurntableGear56.gi()),
+        ]
+        actual = CombinationFinder.nearest_combinations(GearRatio.of_int_ratio(5, 7))
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_nearest_combinations2(self):
+        expected = [
+            GearCombination(Gear36.gi(), Gear28.gi()),
+        ]
+        actual = CombinationFinder.nearest_combinations(GearRatio.of_int_ratio(9, 7))
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_nearest_combinations3(self):
+        expected = [
+            GearCombination(TurntableGear60.gi(), Gear8.gi()),
+        ]
+        actual = CombinationFinder.nearest_combinations(GearRatio.of_int_ratio(100, 1))
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_nearest_combinations4(self):
+        expected = [
+            GearCombination(WormGear.gi(), TurntableGear60.gi()),
+        ]
+        actual = CombinationFinder.nearest_combinations(GearRatio.of_int_ratio(1, 100))
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_all_combination_chains1(self):
+        pass

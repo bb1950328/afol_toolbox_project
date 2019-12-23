@@ -58,3 +58,22 @@ class TestUtil(TestCase):
         ssd = SubSiDummy.get_instance()
         ssd2 = SubSiDummy.get_instance()
         self.assertEqual(ssd, ssd2)
+
+    def test_shorten_fraction1(self):
+        self.assertEqual((1, 1), util.shorten_fraction(1, 1))
+        self.assertEqual((1, 1), util.shorten_fraction(2, 2))
+        self.assertEqual((1, 1), util.shorten_fraction(123, 123))
+
+    def test_shorten_fraction2(self):
+        self.assertEqual((1, 2), util.shorten_fraction(1, 2))
+        self.assertEqual((1, 2), util.shorten_fraction(2, 4))
+        self.assertEqual((1, 2), util.shorten_fraction(123, 123 * 2))
+
+    def test_shorten_fraction3(self):
+        self.assertEqual((22, 7), util.shorten_fraction(88, 28))
+        self.assertEqual((1, 3), util.shorten_fraction(15, 45))
+
+    def test_get_prime_numbers_until(self):
+        expected = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
+        actual = util.get_prime_numbers_until(100)
+        self.assertEqual(expected, actual)

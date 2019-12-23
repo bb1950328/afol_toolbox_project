@@ -1,6 +1,7 @@
 # coding=utf-8
+import math
 from decimal import Decimal
-from typing import List, Type, Union, Optional
+from typing import List, Type, Union, Optional, Set
 
 from afol_toolbox_app.model import util
 
@@ -44,6 +45,20 @@ class Gear(util.Singleton):
         for gear in cls.get_all():
             if gear.gi().teeth == num_teeth:
                 result.append(gear)
+        return result
+
+    @classmethod
+    def nearest_with_num_teeth(cls, num_teeth, skip_worm_gear: bool = False) -> Type:
+        result = None
+        dev = -1
+        all_gears = cls.get_all()
+        if skip_worm_gear:
+            all_gears.remove(WormGear)
+        for gear in all_gears:
+            gdev = abs(gear.gi().teeth - num_teeth)
+            if dev == -1 or dev > gdev:
+                dev = gdev
+                result = gear
         return result
 
     def __str__(self):
@@ -221,7 +236,7 @@ class GearRatio(object):
         self._divide_if_possible()
 
     def _divide_if_possible(self):
-        self._a, self._b = (Decimal(self.a) / Decimal(self.b)).as_integer_ratio()
+        self._a, self._b = util.shorten_fraction(self._a, self._b)
 
     @property
     def ratio(self):
@@ -259,16 +274,26 @@ class GearRatio(object):
     def is_1to1(self) -> bool:
         return self.a == self.b == 1
 
+    def deviation_to(self, other_ratio):
+        ra = (self.a / self.b)
+        rb = (other_ratio.a / other_ratio.b)
+        return abs(ra - rb)
+
     def __str__(self) -> str:
         return f"GearRatio[{self.a}:{self.b}]"
 
     def __eq__(self, o: object) -> bool:
         return isinstance(o, GearRatio) and o.a == self.a and o.b == self.b
 
+    def __mul__(self, other):
+        if not isinstance(other, GearRatio):
+            raise ValueError("Can only multiply with GearRatio!!")
+        return GearRatio.of_int_ratio(self.a * other.a, self.b * other.b)
+
 
 class CombinationFinder(object):
     @staticmethod
-    def all_combinations(ratio: GearRatio):
+    def all_combinations(ratio: GearRatio) -> List[GearCombination]:
         result = []
         for driver in Gear.get_all():
             follower_teeth = driver.gi().teeth / ratio.a * ratio.b
@@ -279,4 +304,29 @@ class CombinationFinder(object):
             for fo in followers:
                 # noinspection PyUnresolvedReferences
                 result.append(GearCombination(driver.gi(), fo.gi()))
+        return result
+
+    @staticmethod
+    def nearest_combinations(ratio: GearRatio) -> List[GearCombination]:
+        result = []
+        dev = -1
+        for driver in Gear.get_all():
+            follower_teeth = driver.gi().teeth / ratio.a * ratio.b
+            # noinspection PyUnresolvedReferences
+            follower = Gear.nearest_with_num_teeth(follower_teeth, skip_worm_gear=True).gi()
+            fra = GearRatio.of_gears(driver.gi(), follower)
+            fra_dev = ratio.deviation_to(fra)
+            if dev == -1 or fra_dev < dev:
+                result = [GearCombination(driver.gi(), follower)]
+                dev = fra_dev
+            elif math.isclose(dev, fra_dev):
+                result.append(GearCombination(driver.gi(), follower))
+        return result
+
+    @staticmethod
+    def all_combination_chains(ratio: GearRatio,
+                               max_results: int = 100,
+                               max_chain_length: int = 5,
+                               max_deviation: float = 0.1) -> List[Set[GearCombination]]:
+        result = [{CombinationFinder.nearest_combination(ratio)}]
         return result
