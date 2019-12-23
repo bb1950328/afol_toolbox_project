@@ -30,6 +30,9 @@ if __name__ == '__main__':
         img = Image.open(img_path)
         for tscale in target_scales:
             print(f"to {tscale}p", end=" ")
+            # noinspection PyUnresolvedReferences
             target_path = os.path.join(".", f"{tscale}p", img_file)
             img.resize((tscale, tscale), Image.BICUBIC).save(target_path)
         print()
+else:
+    raise Exception("Do not import this file!!!")
