@@ -3,6 +3,7 @@ from unittest import TestCase
 # coding=utf-8
 from afol_toolbox_app.model.gears import Gear8, Gear16, TurntableGear60, WormGear, Gear, NormalGear, GearCombination, \
     GearRatio, CombinationFinder, Gear12, Gear20, Gear28, TurntableGear28, TurntableGear56, Gear40, Gear24, Gear36
+from afol_toolbox_app.test.model import test_const
 
 
 class TestGears(TestCase):
@@ -68,13 +69,29 @@ class TestGears(TestCase):
         self.assertFalse(ra.is_torque_increased())
         self.assertTrue(ra.is_1to1())
 
-    def test_gear_deviation_to(self):
+    def test_gear_deviation_to1(self):
         ra1 = GearRatio.of_int_ratio(123, 321)
         ra2 = GearRatio.of_int_ratio(1234, 3250)
         de1 = ra1.deviation_to(ra2)
         de2 = ra2.deviation_to(ra1)
         self.assertAlmostEqual(de1, de2)
-        self.assertAlmostEqual(0.00348526, de1)
+        self.assertAlmostEqual(0.00917917569, de1)
+
+    def test_gear_deviation_to2(self):
+        ra1 = GearRatio.of_int_ratio(1, 2)
+        ra2 = GearRatio.of_int_ratio(1, 3)
+        de1 = ra1.deviation_to(ra2)
+        de2 = ra2.deviation_to(ra1)
+        self.assertAlmostEqual(de1, de2)
+        self.assertAlmostEqual(0.5, de1)
+
+    def test_gear_deviation_to3(self):
+        ra1 = GearRatio.of_int_ratio(1, 2)
+        ra2 = GearRatio.of_int_ratio(1, 2)
+        de1 = ra1.deviation_to(ra2)
+        de2 = ra2.deviation_to(ra1)
+        self.assertAlmostEqual(de1, de2)
+        self.assertAlmostEqual(0, de1)
 
     def test_combinationfinder_all_combinations1(self):
         expected = [
@@ -145,4 +162,49 @@ class TestGears(TestCase):
         self.assertEqual(expected, actual)
 
     def test_combinationfinder_all_combination_chains1(self):
-        pass
+        expected = [
+            {GearCombination(Gear12.gi(), Gear20.gi())},
+            {GearCombination(Gear24.gi(), Gear40.gi())},
+            {GearCombination(Gear36.gi(), TurntableGear60.gi())},
+        ]
+        actual = CombinationFinder.all_combination_chains(GearRatio.of_int_ratio(3, 5),
+                                                          max_chain_length=1,
+                                                          max_deviation=0.001)  # 0.1%
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_all_possible_combinations(self):
+        expected = test_const.ALL_POSSIBLE_COMBINATIONS
+        actual = CombinationFinder.all_possible_combinations()
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_all_combination_chains2(self):
+        expected = [
+            {GearCombination(WormGear.gi(), Gear8.gi()), GearCombination(WormGear.gi(), Gear24.gi())},
+            {GearCombination(WormGear.gi(), Gear12.gi()), GearCombination(WormGear.gi(), Gear16.gi())},
+        ]
+        target_ratio = GearRatio.of_int_ratio(98, 18719)
+        actual = CombinationFinder.all_combination_chains(target_ratio,
+                                                          max_chain_length=2,
+                                                          max_deviation=0.01)  # 1%
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_all_combination_chains3(self):
+        expected = [
+            {GearCombination(Gear8.gi(), Gear36.gi()), GearCombination(WormGear.gi(), TurntableGear56.gi())},
+            {GearCombination(Gear8.gi(), TurntableGear56.gi()), GearCombination(WormGear.gi(), Gear36.gi())},
+            {GearCombination(Gear12.gi(), TurntableGear56.gi()), GearCombination(WormGear.gi(), TurntableGear56.gi())}
+        ]
+        target_ratio = GearRatio.of_int_ratio(23, 5861)
+        actual = CombinationFinder.all_combination_chains(target_ratio,
+                                                          max_chain_length=2,
+                                                          max_deviation=0.03)  # 3%
+        self.assertEqual(expected, actual)
+
+    def test_combinationfinder_all_combination_chains4(self):
+        self.maxDiff = None
+        expected = test_const.COMBINATION_CHAINS_4
+        target_ratio = GearRatio.of_int_ratio(23, 585861)
+        actual = CombinationFinder.all_combination_chains(target_ratio,
+                                                          max_chain_length=3,
+                                                          max_deviation=0.03)  # 3%
+        self.assertEqual(expected, actual)

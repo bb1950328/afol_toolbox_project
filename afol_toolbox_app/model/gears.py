@@ -1,7 +1,8 @@
 # coding=utf-8
+import itertools
 import math
 from decimal import Decimal
-from typing import List, Type, Union, Optional, Set
+from typing import List, Type, Union, Optional, Set, Iterable, Tuple
 
 from afol_toolbox_app.model import util
 
@@ -69,6 +70,9 @@ class Gear(util.Singleton):
 
     def __eq__(self, other):
         return isinstance(other, Gear) and self.teeth == other.teeth and self.image_name == other.image_name
+
+    def __hash__(self) -> int:
+        return hash(str(self))
 
 
 class NormalGear(Gear):
@@ -197,6 +201,9 @@ class GearCombination(object):
     def __eq__(self, other):
         return isinstance(other, GearCombination) and self.driver == other.driver and self.follower == other.follower
 
+    def __hash__(self) -> int:
+        return hash(str(self))
+
 
 class GearRatio(object):
     """
@@ -259,6 +266,16 @@ class GearRatio(object):
             raise ValueError(f"{driver} can't be driver of {follower}!!!")
         return GearRatio.of_int_ratio(driver.teeth, follower.teeth)
 
+    @staticmethod
+    def of_combination_chain(it: Iterable[GearCombination]):
+        aa = 1
+        bb = 1
+        for combi in it:
+            ratio = combi.ratio
+            aa *= ratio._a
+            bb *= ratio._b
+        return GearRatio.of_int_ratio(aa, bb)
+
     def is_torque_increased(self) -> bool:
         return self.a < self.b
 
@@ -277,7 +294,7 @@ class GearRatio(object):
     def deviation_to(self, other_ratio):
         ra = (self.a / self.b)
         rb = (other_ratio.a / other_ratio.b)
-        return abs(ra - rb)
+        return max(ra / rb, rb / ra) - 1
 
     def __str__(self) -> str:
         return f"GearRatio[{self.a}:{self.b}]"
@@ -289,6 +306,9 @@ class GearRatio(object):
         if not isinstance(other, GearRatio):
             raise ValueError("Can only multiply with GearRatio!!")
         return GearRatio.of_int_ratio(self.a * other.a, self.b * other.b)
+
+    def __hash__(self) -> int:
+        return hash(str(self))
 
 
 class CombinationFinder(object):
@@ -324,9 +344,38 @@ class CombinationFinder(object):
         return result
 
     @staticmethod
+    def all_possible_combinations() -> List[GearCombination]:
+        result = []
+        for driver in Gear.get_all():
+            for follower in Gear.get_all():
+                if follower == WormGear:
+                    continue
+                result.append(GearCombination(driver.gi(), follower.gi()))
+        return result
+
+    @staticmethod
+    def clean_combination_chain(chain: Union[List[GearCombination], Tuple[GearCombination]]) -> Set[GearCombination]:
+        return set(chain)
+
+    @staticmethod
     def all_combination_chains(ratio: GearRatio,
                                max_results: int = 100,
                                max_chain_length: int = 5,
                                max_deviation: float = 0.1) -> List[Set[GearCombination]]:
-        result = [{CombinationFinder.nearest_combination(ratio)}]
-        return result
+        """
+        max_deviation: 0.01 = 1%
+        """
+        result = []
+        all_possible = CombinationFinder.all_possible_combinations()
+        for chain_length in range(1, max_chain_length + 1):
+            for combi in itertools.combinations_with_replacement(all_possible, chain_length):
+                oldlen = len(combi)
+                combi = CombinationFinder.clean_combination_chain(combi)
+                if len(combi) < oldlen:
+                    continue
+                combi_ratio = GearRatio.of_combination_chain(combi)
+                dev = ratio.deviation_to(combi_ratio)
+                if dev < max_deviation:
+                    result.append((dev, combi))
+        result.sort(key=lambda x: x[0])
+        return [x[1] for x in result]
