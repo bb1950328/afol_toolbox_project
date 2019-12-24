@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 # coding=utf-8
-from afol_toolbox_app.model.gears import Gear8, Gear16, TurntableGear60, WormGear, Gear, NormalGear, GearCombination, \
+from afol_toolbox_app.model.gears import Gear8, Gear16, TurntableGear60, WormGear, Gear, GearCombination, \
     GearRatio, CombinationFinder, Gear12, Gear20, Gear28, TurntableGear28, TurntableGear56, Gear40, Gear24, Gear36
 from afol_toolbox_app.test.model import test_const
 
@@ -21,13 +21,18 @@ class TestGears(TestCase):
 
     def test_teeth(self):
         self.assertEqual(8, Gear8.gi().teeth)
-        self.assertEqual(1234, Gear(1234, "").teeth)
+        self.assertEqual(1234, Gear(1234).teeth)
 
     def test_image_name(self):
-        self.assertEqual("1234T.png", NormalGear(1234).image_name)
+        self.assertEqual("8T.png", Gear8.gi().image_name)
+        self.assertEqual("56T_Turntable.png", TurntableGear56.gi().image_name)
+
+    def test_radius(self):
+        self.assertEqual(4, Gear8.gi().radius_in_mm)
+        self.assertEqual(34, TurntableGear56.gi().radius_in_mm)
 
     def test_str(self):
-        self.assertEqual("Gear", str(Gear.gi(1234, "")))
+        self.assertEqual("Gear", str(Gear.gi(1234)))
         self.assertEqual("Gear8", str(Gear8.gi()))
 
     def test_gear_combination1(self):

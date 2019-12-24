@@ -1,7 +1,7 @@
 # coding=utf-8
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import Dict, Union, Tuple
+from typing import Dict, Union, Tuple, Callable
 
 
 def get_class(object_or_class, min_base_class=object):
@@ -104,3 +104,41 @@ class Filter(ABC):  # todo testing
         fi = self.__class__()
         fi.accept = lambda obj: self.accept(obj) and other.accept(obj)
         return fi
+
+
+type_funcs: Dict[str, Callable] = {
+    "bool": bool,
+    "int": int,
+    "float": float,
+    "decimal": Decimal,
+    "str": str,
+    "text": str,
+}
+
+
+class CSVDict(dict):
+    def __init__(self, filename: str, key_column=None, delimiter=";", has_type_row=False):
+        """
+        filename: path to open
+        key_column: name of the column which has the keys, None->first colummn
+        delimiter: character between two columns
+        has_type_row: if True, second row includes data types, like str;int;float;decimal
+        """
+        super().__init__()
+        with open(filename, "r") as f:
+            headers = f.readline().strip().split(delimiter)
+            key_idx = 0 if key_column is None else headers.index(key_column)
+            if has_type_row:
+                types = f.readline().strip().split(delimiter)
+                types = [type_funcs[t] for t in types]
+            for row in f.readlines():
+                values = row.strip().split(";")
+                row_dict = dict()
+                for col_idx, val in enumerate(values):
+                    if has_type_row:
+                        val = types[col_idx](val)
+                    if col_idx == key_idx:
+                        key = val
+                    else:
+                        row_dict[headers[col_idx]] = val
+                self[key] = row_dict

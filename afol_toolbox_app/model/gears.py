@@ -1,11 +1,18 @@
 # coding=utf-8
 import itertools
 import math
+import os
 from abc import ABC
 from decimal import Decimal
 from typing import List, Type, Union, Optional, Set, Iterable, Tuple
 
 from afol_toolbox_app.model import util
+
+
+class GearData(util.CSVDict, util.Singleton):
+    def __init__(self):
+        path = os.path.join(os.path.dirname(__file__), "gear_data.csv")
+        super().__init__(path, "Name", has_type_row=True)
 
 
 class Gear(util.Singleton):
@@ -18,19 +25,25 @@ class Gear(util.Singleton):
             return True
 
     _teeth: int
-    _image_name: str
 
     @property
     def teeth(self):
         return self._teeth
 
     @property
-    def image_name(self):
-        return self._image_name
+    def data(self) -> dict:
+        return GearData.gi()[self.__class__.__name__]
 
-    def __init__(self, teeth: int, image_name: str):
+    @property
+    def image_name(self) -> str:
+        return self.data["ImgName"]
+
+    @property
+    def radius_in_mm(self) -> int:
+        return self.data["RadiusMM"]
+
+    def __init__(self, teeth: int):
         self._teeth = teeth
-        self._image_name = image_name
 
     @staticmethod
     def get_all() -> List:
@@ -86,7 +99,7 @@ class Gear(util.Singleton):
 
 class NormalGear(Gear):
     def __init__(self, teeth: int):
-        super().__init__(teeth=teeth, image_name=f"{teeth}T.png")
+        super().__init__(teeth=teeth)
 
     @staticmethod
     def get_all() -> List[Type[Gear]]:
@@ -95,7 +108,7 @@ class NormalGear(Gear):
 
 class TurntableGear(Gear):
     def __init__(self, teeth):
-        super().__init__(teeth=teeth, image_name=f"{teeth}T_Turntable.png")
+        super().__init__(teeth=teeth)
 
     @staticmethod
     def get_all() -> List[Type[Gear]]:
@@ -159,7 +172,7 @@ class TurntableGear60(TurntableGear):
 
 class WormGear(Gear):
     def __init__(self):
-        super().__init__(teeth=1, image_name="1T.png")
+        super().__init__(teeth=1)
 
     @staticmethod
     def get_all() -> List[Type[Gear]]:
@@ -179,6 +192,11 @@ class GearCombination(object):
 
         def accept(self, obj: object) -> bool:
             return isinstance(obj, GearCombination) and obj.driver.teeth != obj.follower.teeth  # todo testing
+
+    class PossibleOnLiftbeamCombinationFilter(GearCombinationFilter):
+
+        def accept(self, obj) -> bool:
+            return isinstance(obj, GearCombination) and obj.axle_distance_mm % 8 == 0  # todo testing
 
     def __init__(self, driver: Gear, follower: Gear):
         self.driver = driver
@@ -202,6 +220,10 @@ class GearCombination(object):
             self._ratio = GearRatio.of_gears(self._driver, self._follower)
         return self._ratio
 
+    @property
+    def axle_distance_mm(self) -> int:
+        return self.driver.radius_in_mm + self.follower.radius_in_mm
+
     @driver.setter
     def driver(self, driver: Gear):
         self._driver = driver
@@ -214,13 +236,13 @@ class GearCombination(object):
         self._follower = follower
         self._ratio = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"GearCombination[{self.driver}:{self.follower}]"
 
     def __repr__(self) -> str:
         return f"GearCombination({self.driver}.gi(), {self.follower}.gi())"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return isinstance(other, GearCombination) and self.driver == other.driver and self.follower == other.follower
 
     def __hash__(self) -> int:
