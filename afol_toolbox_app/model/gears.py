@@ -1,6 +1,7 @@
 # coding=utf-8
 import itertools
 import math
+from abc import ABC
 from decimal import Decimal
 from typing import List, Type, Union, Optional, Set, Iterable, Tuple
 
@@ -8,6 +9,14 @@ from afol_toolbox_app.model import util
 
 
 class Gear(util.Singleton):
+    class GearFilter(util.Filter, ABC):
+        pass
+
+    class AllGearsFilter(GearFilter, util.Singleton):
+
+        def accept(self, obj: object) -> bool:
+            return True
+
     _teeth: int
     _image_name: str
 
@@ -158,6 +167,19 @@ class WormGear(Gear):
 
 
 class GearCombination(object):
+    class GearCombinationFilter(util.Filter, ABC):
+        pass
+
+    class AllGearCombinationsFilter(GearCombinationFilter, util.Singleton):
+
+        def accept(self, obj: object) -> bool:
+            return True
+
+    class No1to1GearCombinationFilter(GearCombinationFilter):
+
+        def accept(self, obj: object) -> bool:
+            return isinstance(obj, GearCombination) and obj.driver.teeth != obj.follower.teeth  # todo testing
+
     def __init__(self, driver: Gear, follower: Gear):
         self.driver = driver
         self.follower = follower
@@ -210,6 +232,27 @@ class GearRatio(object):
     class to represent a gear ratio
     when a is 2 and b is 5, that means that torque is increased 2.5 times and speed is decreased 2.5 times
     """
+
+    class GearRatioFilter(util.Filter, ABC):
+        pass
+
+    class AllGearRatiosFilter(GearRatioFilter, util.Singleton):
+
+        def accept(self, obj: object) -> bool:
+            return True
+
+    class NotBiggerThanGearRatioFilter(GearRatioFilter):  # todo testing
+        def __init__(self, a, b):
+            self.value = a / b
+            if self.value < 1:
+                self.value = 1 / self.value
+
+        def accept(self, obj: object) -> bool:
+            if isinstance(obj, GearRatio):
+                ov = obj.a / obj.b
+                if ov < 1:
+                    ov = 1 / ov
+                return ov <= self.value
 
     def __init__(self):
         self._a = 1
@@ -344,13 +387,14 @@ class CombinationFinder(object):
         return result
 
     @staticmethod
-    def all_possible_combinations() -> List[GearCombination]:
+    def all_possible_combinations(gear_filter: Gear.GearFilter = Gear.AllGearsFilter.gi()) -> List[GearCombination]:
         result = []
         for driver in Gear.get_all():
-            for follower in Gear.get_all():
-                if follower == WormGear:
-                    continue
-                result.append(GearCombination(driver.gi(), follower.gi()))
+            if gear_filter.accept(driver):
+                for follower in Gear.get_all():
+                    if follower == WormGear or not gear_filter.accept(follower):
+                        continue
+                    result.append(GearCombination(driver.gi(), follower.gi()))
         return result
 
     @staticmethod
@@ -358,15 +402,23 @@ class CombinationFinder(object):
         return set(chain)
 
     @staticmethod
-    def all_combination_chains(ratio: GearRatio,
-                               max_results: int = 100,
-                               max_chain_length: int = 5,
-                               max_deviation: float = 0.1) -> List[Set[GearCombination]]:
+    def all_combination_chains(
+            ratio: GearRatio,
+            max_results: int = 100,
+            max_chain_length: int = 5,
+            max_deviation: float = 0.1,
+            gear_filter: Gear.GearFilter = Gear.AllGearsFilter.gi(),
+            ratio_filter: GearRatio.GearRatioFilter = GearRatio.AllGearRatiosFilter.gi(),
+            combination_fltr: GearCombination.GearCombinationFilter = GearCombination.AllGearCombinationsFilter.gi()) \
+            -> List[Set[GearCombination]]:
         """
         max_deviation: 0.01 = 1%
         """
         result = []
-        all_possible = CombinationFinder.all_possible_combinations()
+        all_possible = CombinationFinder.all_possible_combinations(gear_filter)
+        combination_fltr += GearCombination.No1to1GearCombinationFilter()
+        all_possible = [combi for combi in all_possible
+                        if combination_fltr.accept(combi) and ratio_filter.accept(combi.ratio)]
         for chain_length in range(1, max_chain_length + 1):
             for combi in itertools.combinations_with_replacement(all_possible, chain_length):
                 oldlen = len(combi)

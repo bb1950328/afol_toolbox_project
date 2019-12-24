@@ -1,4 +1,5 @@
 # coding=utf-8
+from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Dict, Union, Tuple
 
@@ -44,7 +45,7 @@ def expand_to_int_fraction(a: Union[int, float, Decimal], b: Union[int, float, D
     1, 2.5 -> 2, 5
     1, 2 -> 1, 2
     """
-    if not (isinstance(a, int) and isinstance(b, int)):
+    if not (isinstance(a, int) and isinstance(b, int)):  # todo testing
         if isinstance(a, (float, int)):
             a = Decimal(a)
         if isinstance(b, (float, int)):
@@ -80,3 +81,26 @@ def get_prime_numbers_until(until: int):
             result[x] = 0
             x += i
     return [num for num in range(until) if result[num]][2:]
+
+
+class Filter(ABC):  # todo testing
+    @abstractmethod
+    def accept(self, obj: object) -> bool:
+        pass
+
+    @classmethod
+    def of_whitelist(cls, whitelist):
+        fi = cls()
+        fi.accept = lambda obj: obj in whitelist
+        return fi
+
+    @classmethod
+    def of_blacklist(cls, blacklist):
+        fi = cls()
+        fi.accept = lambda obj: obj not in blacklist
+        return fi
+
+    def __add__(self, other):
+        fi = self.__class__()
+        fi.accept = lambda obj: self.accept(obj) and other.accept(obj)
+        return fi
