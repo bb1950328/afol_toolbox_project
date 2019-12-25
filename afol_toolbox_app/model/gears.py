@@ -75,6 +75,7 @@ class Gear(util.Singleton):
         return driver_cls.can_be_driver_of(cls)
 
     @classmethod
+    @util.cache_results
     def with_num_teeth(cls, num_teeth) -> List[Type]:
         result = []
         for gear in cls.get_all():
@@ -83,6 +84,7 @@ class Gear(util.Singleton):
         return result
 
     @classmethod
+    @util.cache_results
     def nearest_with_num_teeth(cls, num_teeth, skip_worm_gear: bool = False) -> Type:
         result = None
         dev = -1
@@ -398,6 +400,7 @@ class GearRatio(object):
 
 class CombinationFinder(object):
     @staticmethod
+    @util.cache_results
     def all_combinations(ratio: GearRatio) -> List[GearCombination]:
         result = []
         for driver in Gear.get_all():
@@ -412,6 +415,7 @@ class CombinationFinder(object):
         return result
 
     @staticmethod
+    @util.cache_results
     def nearest_combinations(ratio: GearRatio) -> List[GearCombination]:
         result = []
         dev = -1
@@ -429,6 +433,7 @@ class CombinationFinder(object):
         return result
 
     @staticmethod
+    @util.cache_results
     def all_possible_combinations(gear_filter: Gear.GearFilter = Gear.AllGearsFilter.gi()) -> List[GearCombination]:
         result = []
         for driver in Gear.get_all():
@@ -444,6 +449,7 @@ class CombinationFinder(object):
         return set(chain)
 
     @staticmethod
+    @util.cache_results
     def all_combination_chains(
             ratio: GearRatio,
             max_results: int = 100,

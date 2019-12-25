@@ -1,13 +1,18 @@
 from unittest import TestCase
 
 # coding=utf-8
+from afol_toolbox_app.model import util
 from afol_toolbox_app.model.gears import Gear8, Gear16, TurntableGear60, WormGear, Gear, GearCombination, \
     GearRatio, CombinationFinder, Gear12, Gear20, Gear28, TurntableGear28, TurntableGear56, Gear40, Gear24, Gear36, \
     NormalGear
-from afol_toolbox_app.test.model import test_const
+from afol_toolbox_app.test.model import results
 
 
 class TestGears(TestCase):
+
+    def setUp(self) -> None:
+        util.disable_cache()
+
     def test_can_be_driver_of(self):
         self.assertTrue(Gear8.can_be_driver_of(Gear16))
         self.assertTrue(Gear8.can_be_driver_of(Gear8))
@@ -168,17 +173,17 @@ class TestGears(TestCase):
         self.assertEqual(expected, actual)
 
     def test_combinationfinder_all_possible_combinations1(self):
-        expected = test_const.ALL_POSSIBLE_COMBINATIONS_1
+        expected = results.ALL_POSSIBLE_COMBINATIONS_1
         actual = CombinationFinder.all_possible_combinations()
         self.assertEqual(expected, actual)
 
     def test_combinationfinder_all_possible_combinations2(self):
-        expected = test_const.ALL_POSSIBLE_COMBINATIONS_2
+        expected = results.ALL_POSSIBLE_COMBINATIONS_2
         actual = CombinationFinder.all_possible_combinations(NormalGear.NormalGearsOnlyFilter.gi())
         self.assertEqual(expected, actual)
 
     def test_combinationfinder_all_possible_combinations3(self):
-        expected = test_const.ALL_POSSIBLE_COMBINATIONS_3
+        expected = results.ALL_POSSIBLE_COMBINATIONS_3
         gear_filter = NormalGear.NormalGearsOnlyFilter.gi() + Gear.TeethLimitGearFilter(min=10, max=20)
         actual = CombinationFinder.all_possible_combinations(gear_filter)
         self.assertEqual(expected, actual)
@@ -249,7 +254,7 @@ class TestGears(TestCase):
 
     def test_combinationfinder_all_combination_chains5(self):
         self.maxDiff = None
-        expected = test_const.COMBINATION_CHAINS_5
+        expected = results.COMBINATION_CHAINS_5
         target_ratio = GearRatio.of_int_ratio(23, 585861)
         actual = CombinationFinder.all_combination_chains(target_ratio,
                                                           max_chain_length=3,
