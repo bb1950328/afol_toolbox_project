@@ -24,6 +24,18 @@ class Gear(util.Singleton):
         def accept(self, obj: object) -> bool:
             return True
 
+    class TeethLimitGearFilter(GearFilter):
+        _min: int
+        _max: int
+
+        # noinspection PyShadowingBuiltins
+        def __init__(self, *, min=0, max=10 ** 10):
+            self._min = min
+            self._max = max
+
+        def accept(self, obj: object) -> bool:
+            return isinstance(obj, Gear) and self._min <= obj.teeth <= self._max
+
     _teeth: int
 
     @property
@@ -98,6 +110,11 @@ class Gear(util.Singleton):
 
 
 class NormalGear(Gear):
+    class NormalGearsOnlyFilter(Gear.GearFilter, util.Singleton):
+
+        def accept(self, obj: object) -> bool:
+            return obj.__class__ in NormalGear.get_all() or any(isinstance(obj, cls) for cls in NormalGear.get_all())
+
     def __init__(self, teeth: int):
         super().__init__(teeth=teeth)
 
@@ -196,7 +213,10 @@ class GearCombination(object):
     class PossibleOnLiftbeamCombinationFilter(GearCombinationFilter):
 
         def accept(self, obj) -> bool:
-            return isinstance(obj, GearCombination) and obj.axle_distance_mm % 8 == 0  # todo testing
+            return isinstance(obj, GearCombination) \
+                   and obj.axle_distance_mm % 8 == 0 \
+                   and not isinstance(obj.driver, WormGear)
+            # todo testing
 
     def __init__(self, driver: Gear, follower: Gear):
         self.driver = driver
@@ -412,9 +432,9 @@ class CombinationFinder(object):
     def all_possible_combinations(gear_filter: Gear.GearFilter = Gear.AllGearsFilter.gi()) -> List[GearCombination]:
         result = []
         for driver in Gear.get_all():
-            if gear_filter.accept(driver):
+            if gear_filter.accept(driver.gi()):
                 for follower in Gear.get_all():
-                    if follower == WormGear or not gear_filter.accept(follower):
+                    if follower == WormGear or not gear_filter.accept(follower.gi()):
                         continue
                     result.append(GearCombination(driver.gi(), follower.gi()))
         return result
@@ -432,9 +452,10 @@ class CombinationFinder(object):
             gear_filter: Gear.GearFilter = Gear.AllGearsFilter.gi(),
             ratio_filter: GearRatio.GearRatioFilter = GearRatio.AllGearRatiosFilter.gi(),
             combination_fltr: GearCombination.GearCombinationFilter = GearCombination.AllGearCombinationsFilter.gi()) \
-            -> List[Set[GearCombination]]:
+            -> List[Tuple[float, Set[GearCombination]]]:
         """
         max_deviation: 0.01 = 1%
+        returns a list of (deviation, set of combinations) tuples
         """
         result = []
         all_possible = CombinationFinder.all_possible_combinations(gear_filter)
@@ -452,4 +473,6 @@ class CombinationFinder(object):
                 if dev < max_deviation:
                     result.append((dev, combi))
         result.sort(key=lambda x: x[0])
-        return [x[1] for x in result]
+        if len(result) > max_results:
+            result = result[0:max_results]
+        return result

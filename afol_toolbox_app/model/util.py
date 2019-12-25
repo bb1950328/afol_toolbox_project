@@ -1,7 +1,7 @@
 # coding=utf-8
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import Dict, Union, Tuple, Callable
+from typing import Dict, Union, Tuple, Callable, Iterable
 
 
 def get_class(object_or_class, min_base_class=object):
@@ -101,9 +101,14 @@ class Filter(ABC):  # todo testing
         return fi
 
     def __add__(self, other):
-        fi = self.__class__()
-        fi.accept = lambda obj: self.accept(obj) and other.accept(obj)
-        return fi
+        class SumFilter(Filter):
+            def accept(self, obj: object) -> bool:
+                return all(fi.accept(obj) for fi in self._subfilters)
+
+            def __init__(self, subfilters: Iterable[Filter]):
+                self._subfilters = subfilters
+
+        return SumFilter([self, other])
 
 
 type_funcs: Dict[str, Callable] = {
