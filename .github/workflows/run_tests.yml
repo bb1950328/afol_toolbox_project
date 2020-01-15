@@ -16,4 +16,4 @@ jobs:
         python-version: 3.7
         architecture: x64
     - name: Run the tests
-      run: python -m unittest discover -s /afol_toolbox_app/test | tee unittest_output.txt
+      run: python -m unittest discover -s ./afol_toolbox_app/test | tee unittest_output.txt
