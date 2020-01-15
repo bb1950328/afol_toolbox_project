@@ -18,4 +18,6 @@ jobs:
     - name: Run the tests
       run: python -m unittest discover -v afol_toolbox_app.test | tee ./.github/workflows/unittest_output.txt
     - name: Check Output
-      run: ./.github/workflows/compare_output.sh
+      run: |
+        chmod a+x ./.github/workflows/compare_output.sh
+        ./.github/workflows/compare_output.sh
