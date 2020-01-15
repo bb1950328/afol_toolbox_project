@@ -16,7 +16,7 @@ jobs:
         python-version: 3.7
         architecture: x64
     - name: Run the tests
-      run: python -m unittest discover -v afol_toolbox_app.test | tee ./.github/workflows/unittest_output.txt
+      run: python -m unittest discover -v afol_toolbox_app.test | tee ./unittest_output.txt
     - name: Check Output
       run: |
         chmod a+x ./.github/workflows/compare_output.sh
