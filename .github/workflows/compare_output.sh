@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-
-[[ "$(tail -1 ./.github/workflows/unittest_output.txt)" == "OK" ]] && exit 0 || exit -1
+LINE = "$(tail -1 ./.github/workflows/unittest_output.txt)"
+echo "The last line is: $LINE"
+[[ $LINE == *"OK"* ]] && exit 0 || exit -1
