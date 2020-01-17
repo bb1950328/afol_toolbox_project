@@ -1,4 +1,4 @@
-PIL
+pillow
 bokeh
 Django
 mysql-connector==2.2.9
