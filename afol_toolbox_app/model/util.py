@@ -158,46 +158,6 @@ def get_arg_hash(args: Iterable, kwargs: Dict):
     return hash(ha)
 
 
-use_cache = True
-
-
-def enable_cache():
-    global use_cache
-    use_cache = True
-
-
-def disable_cache():
-    global use_cache
-    use_cache = False
-
-
-def cache_results(func: Callable, maxsize=100):
-    cache = {}
-    hits = {}
-
-    def wrapper(*args, **kwargs):
-        if not use_cache:
-            return func(*args, **kwargs)
-        arghash = get_arg_hash(args, kwargs)
-        try:
-            hits[arghash] += 1
-            return cache[arghash]
-        except KeyError:
-            if len(hits) >= maxsize:
-                min_hits = min(hits.values())
-                for key, val in hits.items():
-                    if val == min_hits:
-                        del cache[key]
-                        del hits[key]
-                        break
-            res = func(*args, **kwargs)
-            cache[arghash] = res
-            hits[arghash] = 0
-            return res
-
-    return wrapper
-
-
 def get_execution_time(func, *args, **kwargs):
     start = time.perf_counter()
     func(*args, **kwargs)

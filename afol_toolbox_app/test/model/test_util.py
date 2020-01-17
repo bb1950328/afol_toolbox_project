@@ -21,21 +21,11 @@ class SubSiDummy(SiDummy):
     pass
 
 
-@util.cache_results
-def cached_dummy(inp):
-    return inp * 2
-
-
-@util.cache_results
-def cached_waiting_dummy(inp):
-    time.sleep(0.1)
-    return inp * 2
-
 
 class TestUtil(TestCase):
 
     def setUp(self) -> None:
-        util.disable_cache()
+        pass
 
     def test_get_class_class1(self):
         self.assertEqual(Dummy, util.get_class(Dummy))
@@ -109,65 +99,3 @@ class TestUtil(TestCase):
         ]
         no_duplicates = list(set(ha))
         self.assertEqual(sorted(ha), sorted(no_duplicates))
-
-    def test_result_cache1(self):
-        util.enable_cache()
-
-        start = time.perf_counter()
-        cached_waiting_dummy(2)  # call function
-        middle = time.perf_counter()
-        cached_waiting_dummy(2)  # get result from cache, should be 0.1 s faster
-        end = time.perf_counter()
-        t1 = middle - start
-        t2 = end - middle
-        diff = t1 - t2
-        self.assertTrue(abs(0.1 - diff) < 0.001)
-        util.disable_cache()
-
-    def test_result_cache2(self):
-        self.assertNotEqual(cached_dummy(1), cached_dummy(2))
-
-    def test_result_cache3(self):
-        a1 = cached_dummy(1)
-        b1 = cached_dummy(2)
-        a2 = cached_dummy(1)
-        b2 = cached_dummy(2)
-        self.assertEqual(a1, a2)
-        self.assertEqual(b1, b2)
-        self.assertNotEqual(a1, b1)
-
-    def test_result_cache_maxsize(self):
-        util.enable_cache()
-
-        sleep_s = 0.1
-        p = 1
-
-        @util.cache_results
-        def small_cache_dummy(n):
-            time.sleep(sleep_s)
-            return n * 2
-
-        for i in range(1, 100):
-            ext = util.get_execution_time(small_cache_dummy, i)
-            self.assertAlmostEqual(sleep_s, ext, places=p)
-        # cache is full now
-        for i in range(1, 99):
-            ext = util.get_execution_time(small_cache_dummy, i)
-            self.assertAlmostEqual(0, ext, places=p)
-
-        ex1 = util.get_execution_time(small_cache_dummy, 150)  # 100 gets removed now because it has the least hits
-        ex2 = util.get_execution_time(small_cache_dummy, 100)
-
-        self.assertAlmostEqual(sleep_s, ex1, places=p)
-        self.assertAlmostEqual(sleep_s, ex2, places=p)
-
-    def test_enable_disable_cache(self):
-        util.disable_cache()
-        start = time.perf_counter()
-        cached_waiting_dummy(2)
-        middle = time.perf_counter()
-        cached_waiting_dummy(2)
-        end = time.perf_counter()
-        t1 = middle - start
-        t2 = end - middle
-        self.assertTrue(abs(t1 - t2) < 0.01)

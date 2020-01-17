@@ -11,7 +11,7 @@ from afol_toolbox_app.test.model import results
 class TestGears(TestCase):
 
     def setUp(self) -> None:
-        util.disable_cache()
+        pass
 
     def test_can_be_driver_of(self):
         self.assertTrue(Gear8.can_be_driver_of(Gear16))
