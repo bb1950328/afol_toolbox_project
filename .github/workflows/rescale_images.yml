@@ -1,0 +1,25 @@
+name: Push commit
+on: push
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        folder: [gears]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup python
+          uses: actions/setup-python@v1
+          with:
+            python-version: 3.7
+            architecture: x64
+      - name: Rescale images
+        run: |
+          cd ./afol_toolbox_app/static/img/${{ matrix.folder }}
+          python ../img_scaler.py
+      - name: Commit report
+        run: |
+          git config --global user.name 'bb1950328'
+          git config --global user.email 'bb1950328@gmail.com'
+          git commit -am "Rescaled images (Github Action)"
+          git push
