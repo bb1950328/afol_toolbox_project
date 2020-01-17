@@ -19,10 +19,21 @@ jobs:
         run: |
           cd ./afol_toolbox_app/static/img/${{ matrix.folder }}
           python ../img_scaler.py
-      - name: Commit report
+      - name: Configure git and add files
         run: |
           git config --global user.name 'bb1950328'
           git config --global user.email 'bb1950328@gmail.com'
           git add afol_toolbox_app/static/img/${{ matrix.folder }}
+      - name: Check if something changed
+        id: stage_check
+        run: git diff --cached --quiet ::set-output name=status::success
+        continue-on-error: true
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - name: Commit report
+        if: steps.stage_check.outputs.status == 'failure' # exit code > 0 means something changed
+        run: |
           git commit -am "Rescaled images in folder ${{ matrix.folder }} (Github Action)"
           git push
