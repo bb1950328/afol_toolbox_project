@@ -15,7 +15,7 @@ jobs:
           architecture: x64
       - name: Install pillow
         run: pip install pillow
-      - name: Rescale images
+      - name: Rescale images in folder ${{ matrix.folder }}
         run: |
           cd ./afol_toolbox_app/static/img/${{ matrix.folder }}
           python ../img_scaler.py
@@ -23,5 +23,6 @@ jobs:
         run: |
           git config --global user.name 'bb1950328'
           git config --global user.email 'bb1950328@gmail.com'
+          git add afol_toolbox_app/static/img/${{ matrix.folder }}
           git commit -am "Rescaled images (Github Action)"
           git push
