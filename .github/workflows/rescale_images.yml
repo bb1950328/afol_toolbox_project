@@ -32,7 +32,7 @@ jobs:
         env:
           STEPS_CONTEXT: ${{ toJson(steps) }}
         run: echo "$STEPS_CONTEXT"
-      - name: Commit report
+      - name: Commit changes
         if: steps.stage_check.outputs.status == 'failure' # exit code > 0 means something changed
         run: |
           git commit -am "Rescaled images in folder ${{ matrix.folder }} (Github Action)"
