@@ -13,6 +13,8 @@ jobs:
         with:
           python-version: 3.7
           architecture: x64
+      - name: Install pillow
+        run: pip install pillow
       - name: Rescale images
         run: |
           cd ./afol_toolbox_app/static/img/${{ matrix.folder }}
