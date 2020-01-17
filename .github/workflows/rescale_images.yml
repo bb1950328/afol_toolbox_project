@@ -1,4 +1,4 @@
-name: Push commit
+name: RescaleAllImages
 on: push
 jobs:
   report:
@@ -9,10 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup python
-          uses: actions/setup-python@v1
-          with:
-            python-version: 3.7
-            architecture: x64
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+          architecture: x64
       - name: Rescale images
         run: |
           cd ./afol_toolbox_app/static/img/${{ matrix.folder }}
