@@ -1,8 +1,9 @@
 # coding=utf-8
 import abc
-from typing import Optional
+from typing import Optional, Dict
 
 from afol_toolbox_app.model import util
+from afol_toolbox_app.view.web.listener import Listener
 
 
 class BaseWidget(abc.ABC):
@@ -83,20 +84,76 @@ class BaseWidget(abc.ABC):
         VOLUME_CHANGE = "onvolumechange"
         WAITING = "onwaiting"
         WHEEL = "onwheel"
+        ALL = [AFTER_PRINT, BEFORE_PRINT, BEFORE_UNLOAD, HASH_CHANGE, MESSAGE, OFFLINE, ONLINE, PAGE_HIDE, PAGE_SHOW,
+                POP_STATE, STORAGE, UNLOAD, ABORT, AUTOCOMPLETE, AUTOCOMPLETE_ERROR, BLUR, CANCEL, CAN_PLAY,
+                CAN_PLAY_THROUGH, CHANGE, CLICK, CLOSE, CONTEXT_MENU, CUE_CHANGE, DBL_CLICK, DRAG, DRAG_END, DRAG_ENTER,
+                DRAG_EXIT, DRAG_LEAVE, DRAG_OVER, DRAG_START, DROP, DURATION_CHANGE, EMPTIED, ENDED, ERROR, FOCUS,
+                FOCUS_IN, FOCUS_OUT, INPUT, INVALID, KEY_DOWN, KEY_PRESS, KEY_UP, LOAD, LOADED_DATA, LOADED_METADATA,
+                LOAD_START, MOUSE_DOWN, MOUSE_ENTER, MOUSE_LEAVE, MOUSE_MOVE, MOUSE_OUT, MOUSE_OVER, MOUSE_UP, PAUSE,
+                PLAY, PLAYING, PROGRESS, RATE_CHANGE, RESET, RESIZE, SCROLL, SEEKED, SEEKING, SELECT, SORT, STALLED,
+                SUBMIT, SUSPEND, TIME_UPDATE, TOGGLE, VOLUME_CHANGE, WAITING, WHEEL, BEFORE_UNLOAD, HASH_CHANGE,
+                MESSAGE, OFFLINE, ONLINE, PAGE_HIDE, PAGE_SHOW, POP_STATE, STORAGE, UNLOAD, ABORT, AUTOCOMPLETE,
+                AUTOCOMPLETE_ERROR, BLUR, CANCEL, CAN_PLAY, CAN_PLAY_THROUGH, CHANGE, CLICK, CLOSE, CONTEXT_MENU,
+                CUE_CHANGE, DBL_CLICK, DRAG, DRAG_END, DRAG_ENTER, DRAG_EXIT, DRAG_LEAVE, DRAG_OVER, DRAG_START, DROP,
+                DURATION_CHANGE, EMPTIED, ENDED, ERROR, FOCUS, FOCUS_IN, FOCUS_OUT, INPUT, INVALID, KEY_DOWN, KEY_PRESS,
+                KEY_UP, LOAD, LOADED_DATA, LOADED_METADATA, LOAD_START, MOUSE_DOWN, MOUSE_ENTER, MOUSE_LEAVE,
+                MOUSE_MOVE, MOUSE_OUT, MOUSE_OVER, MOUSE_UP, PAUSE, PLAY, PLAYING, PROGRESS, RATE_CHANGE, RESET, RESIZE,
+                SCROLL, SEEKED, SEEKING, SELECT, SORT, STALLED, SUBMIT, SUSPEND, TIME_UPDATE, TOGGLE, VOLUME_CHANGE,
+                WAITING, WHEEL, ]
 
-    def __init__(self):
-        self._id = util.get_random_alphanumeric_string(12)
+    class EventDict(object):
+        _listeners: Dict[str, Listener]
+
+        def __len__(self):
+            return len(self._listeners)
+
+        def __getitem__(self, item):
+            return self._listeners[item]
+
+        def __setitem__(self, key, value):
+            if key not in BaseWidget.EventType.ALL:
+                raise KeyError(f"key should be one of BaseWidget.EventType")
+            self._listeners[key] = value
+            # todo send change to client
+
+        def __delitem__(self, key):
+            del self._listeners[key]
+            # todo send changes to client
+
+        def __iter__(self):
+            return self._listeners.__iter__()
+
+        def __contains__(self, item):
+            return self._listeners.__contains__(item)
+
+    def __init__(self, id=None):
+        """
+        :param id: optional, something like '3o0fq2zv4gaq' if not specified
+        """
+        self._id = util.get_random_alphanumeric_string(12) if id is None else id
+        self._events = self.EventDict()
+
+    @property
+    def events(self) -> EventDict:
+        return self._events
 
     @property
     def id(self):
         """
-        :return: the id of the widget, something like '3o0fq2zv4gaq'
+        :return: the id of the widget
         """
         return self._id
 
     @abc.abstractmethod
     def as_html(self) -> str:
         pass
+
+    @property
+    def joined_html_attributes(self) -> str:
+        return " ".join((f'{key}="{value}"' for key, value in self.get_html_attributes().items()))
+
+    def get_html_attributes(self) -> Dict[str, str]:
+        return {}
 
 
 class SingleContainer(abc.ABC):
