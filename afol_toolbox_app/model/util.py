@@ -1,8 +1,11 @@
 # coding=utf-8
+import random
 import time
 from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Dict, Union, Tuple, Callable, Iterable
+
+ALPHANUM_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 
 def get_class(object_or_class, min_base_class=object):
@@ -163,3 +166,8 @@ def get_execution_time(func, *args, **kwargs):
     func(*args, **kwargs)
     end = time.perf_counter()
     return end - start
+
+
+def get_random_alphanumeric_string(length: int = 10):
+    chars = [ALPHANUM_CHARS[random.randint(0, 35)] for i in range(length)]
+    return "".join(chars)

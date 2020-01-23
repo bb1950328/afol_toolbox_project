@@ -1,6 +1,7 @@
 pillow
 bokeh
 Django
+kivy
 mysql-connector==2.2.9
 pytz==2019.3
 sqlparse==0.3.0
