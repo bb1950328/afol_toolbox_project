@@ -13,7 +13,7 @@
             "name": "Data Table",
             "url": "data",
             "materialize_icon": "grid_on",
-            "view_func": "tools.gears.data_table"
+            "view_func": "tools.gears_view.data_table"
           },
           {
             "name": "Ratio Calculator",

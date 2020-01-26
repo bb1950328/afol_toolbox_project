@@ -20,4 +20,32 @@
 
 body {
     background-color: #333333;
+    min-height: 100vh; /* TODO make the page at least as high as the window*/
+    color: #dddddd;
+}
+
+header {
+    background-color: #555555;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+main {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0.5cm;
+}
+
+footer {
+    background-color: #222222;
+    margin-bottom: 0;
+}
+
+table {
+    background-color: #555555;
+}
+
+table img {
+    height: 40px;
+    width: 40px;
 }
