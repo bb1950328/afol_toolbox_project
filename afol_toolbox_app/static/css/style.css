@@ -1,0 +1,23 @@
+.file-icon.size0 {
+    height: 15px;/*TODO make all this values the same as materialize (1rem, 2rem, 4rem, 6rem)*/
+    width: 15px;
+}
+
+.file-icon.size1 {
+    height: 30px;
+    width: 30px;
+}
+
+.file-icon.size2 {
+    height: 60px;
+    width: 60px;
+}
+
+.file-icon.size3 {
+    height: 90px;
+    width: 90px;
+}
+
+body {
+    background-color: #333333;
+}
