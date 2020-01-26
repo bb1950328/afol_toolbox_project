@@ -1,9 +1,10 @@
 # coding=utf-8
 import abc
+from collections import ItemsView
 from typing import Optional, Dict
 
 from afol_toolbox_app.model import util
-from afol_toolbox_app.view.web.listener import Listener
+from afol_toolbox_app.view.web.listener import Listener, ClientListener, ServerListener
 
 
 class BaseWidget(abc.ABC):
@@ -85,21 +86,21 @@ class BaseWidget(abc.ABC):
         WAITING = "onwaiting"
         WHEEL = "onwheel"
         ALL = [AFTER_PRINT, BEFORE_PRINT, BEFORE_UNLOAD, HASH_CHANGE, MESSAGE, OFFLINE, ONLINE, PAGE_HIDE, PAGE_SHOW,
-                POP_STATE, STORAGE, UNLOAD, ABORT, AUTOCOMPLETE, AUTOCOMPLETE_ERROR, BLUR, CANCEL, CAN_PLAY,
-                CAN_PLAY_THROUGH, CHANGE, CLICK, CLOSE, CONTEXT_MENU, CUE_CHANGE, DBL_CLICK, DRAG, DRAG_END, DRAG_ENTER,
-                DRAG_EXIT, DRAG_LEAVE, DRAG_OVER, DRAG_START, DROP, DURATION_CHANGE, EMPTIED, ENDED, ERROR, FOCUS,
-                FOCUS_IN, FOCUS_OUT, INPUT, INVALID, KEY_DOWN, KEY_PRESS, KEY_UP, LOAD, LOADED_DATA, LOADED_METADATA,
-                LOAD_START, MOUSE_DOWN, MOUSE_ENTER, MOUSE_LEAVE, MOUSE_MOVE, MOUSE_OUT, MOUSE_OVER, MOUSE_UP, PAUSE,
-                PLAY, PLAYING, PROGRESS, RATE_CHANGE, RESET, RESIZE, SCROLL, SEEKED, SEEKING, SELECT, SORT, STALLED,
-                SUBMIT, SUSPEND, TIME_UPDATE, TOGGLE, VOLUME_CHANGE, WAITING, WHEEL, BEFORE_UNLOAD, HASH_CHANGE,
-                MESSAGE, OFFLINE, ONLINE, PAGE_HIDE, PAGE_SHOW, POP_STATE, STORAGE, UNLOAD, ABORT, AUTOCOMPLETE,
-                AUTOCOMPLETE_ERROR, BLUR, CANCEL, CAN_PLAY, CAN_PLAY_THROUGH, CHANGE, CLICK, CLOSE, CONTEXT_MENU,
-                CUE_CHANGE, DBL_CLICK, DRAG, DRAG_END, DRAG_ENTER, DRAG_EXIT, DRAG_LEAVE, DRAG_OVER, DRAG_START, DROP,
-                DURATION_CHANGE, EMPTIED, ENDED, ERROR, FOCUS, FOCUS_IN, FOCUS_OUT, INPUT, INVALID, KEY_DOWN, KEY_PRESS,
-                KEY_UP, LOAD, LOADED_DATA, LOADED_METADATA, LOAD_START, MOUSE_DOWN, MOUSE_ENTER, MOUSE_LEAVE,
-                MOUSE_MOVE, MOUSE_OUT, MOUSE_OVER, MOUSE_UP, PAUSE, PLAY, PLAYING, PROGRESS, RATE_CHANGE, RESET, RESIZE,
-                SCROLL, SEEKED, SEEKING, SELECT, SORT, STALLED, SUBMIT, SUSPEND, TIME_UPDATE, TOGGLE, VOLUME_CHANGE,
-                WAITING, WHEEL, ]
+               POP_STATE, STORAGE, UNLOAD, ABORT, AUTOCOMPLETE, AUTOCOMPLETE_ERROR, BLUR, CANCEL, CAN_PLAY,
+               CAN_PLAY_THROUGH, CHANGE, CLICK, CLOSE, CONTEXT_MENU, CUE_CHANGE, DBL_CLICK, DRAG, DRAG_END, DRAG_ENTER,
+               DRAG_EXIT, DRAG_LEAVE, DRAG_OVER, DRAG_START, DROP, DURATION_CHANGE, EMPTIED, ENDED, ERROR, FOCUS,
+               FOCUS_IN, FOCUS_OUT, INPUT, INVALID, KEY_DOWN, KEY_PRESS, KEY_UP, LOAD, LOADED_DATA, LOADED_METADATA,
+               LOAD_START, MOUSE_DOWN, MOUSE_ENTER, MOUSE_LEAVE, MOUSE_MOVE, MOUSE_OUT, MOUSE_OVER, MOUSE_UP, PAUSE,
+               PLAY, PLAYING, PROGRESS, RATE_CHANGE, RESET, RESIZE, SCROLL, SEEKED, SEEKING, SELECT, SORT, STALLED,
+               SUBMIT, SUSPEND, TIME_UPDATE, TOGGLE, VOLUME_CHANGE, WAITING, WHEEL, BEFORE_UNLOAD, HASH_CHANGE,
+               MESSAGE, OFFLINE, ONLINE, PAGE_HIDE, PAGE_SHOW, POP_STATE, STORAGE, UNLOAD, ABORT, AUTOCOMPLETE,
+               AUTOCOMPLETE_ERROR, BLUR, CANCEL, CAN_PLAY, CAN_PLAY_THROUGH, CHANGE, CLICK, CLOSE, CONTEXT_MENU,
+               CUE_CHANGE, DBL_CLICK, DRAG, DRAG_END, DRAG_ENTER, DRAG_EXIT, DRAG_LEAVE, DRAG_OVER, DRAG_START, DROP,
+               DURATION_CHANGE, EMPTIED, ENDED, ERROR, FOCUS, FOCUS_IN, FOCUS_OUT, INPUT, INVALID, KEY_DOWN, KEY_PRESS,
+               KEY_UP, LOAD, LOADED_DATA, LOADED_METADATA, LOAD_START, MOUSE_DOWN, MOUSE_ENTER, MOUSE_LEAVE,
+               MOUSE_MOVE, MOUSE_OUT, MOUSE_OVER, MOUSE_UP, PAUSE, PLAY, PLAYING, PROGRESS, RATE_CHANGE, RESET, RESIZE,
+               SCROLL, SEEKED, SEEKING, SELECT, SORT, STALLED, SUBMIT, SUSPEND, TIME_UPDATE, TOGGLE, VOLUME_CHANGE,
+               WAITING, WHEEL, ]
 
     class EventDict(object):
         _listeners: Dict[str, Listener]
@@ -113,6 +114,8 @@ class BaseWidget(abc.ABC):
         def __setitem__(self, key, value):
             if key not in BaseWidget.EventType.ALL:
                 raise KeyError(f"key should be one of BaseWidget.EventType")
+            if not isinstance(value, Listener):
+                raise ValueError(f"Key should be a Listener, not {value.__class__}")
             self._listeners[key] = value
             # todo send change to client
 
@@ -125,6 +128,9 @@ class BaseWidget(abc.ABC):
 
         def __contains__(self, item):
             return self._listeners.__contains__(item)
+
+        def items(self) -> ItemsView[str, Listener]:
+            return self._listeners.items()
 
     def __init__(self, id=None):
         """
@@ -153,7 +159,15 @@ class BaseWidget(abc.ABC):
         return " ".join((f'{key}="{value}"' for key, value in self.get_html_attributes().items()))
 
     def get_html_attributes(self) -> Dict[str, str]:
-        return {}
+        listeners = {}
+        for key, value in self.events.items():
+            if isinstance(value, ClientListener):
+                listeners[key] = value.js_code
+            elif isinstance(value, ServerListener):
+                listeners[key] = f'callServerListener("{self.id}", "{key}");'
+            else:
+                raise ValueError(f"Unsupported Listener class: {value.__class__}")
+        return {**listeners, "id": self.id}
 
 
 class SingleContainer(abc.ABC):

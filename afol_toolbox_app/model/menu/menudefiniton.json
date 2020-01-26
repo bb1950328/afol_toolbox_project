@@ -1,0 +1,70 @@
+[
+  {
+    "name": "Tools",
+    "url": "tools",
+    "materialize_icon": "build",
+    "children": [
+      {
+        "name": "Gears",
+        "url": "gears",
+        "materialize_icon": "settings",
+        "children": [
+          {
+            "name": "Data Table",
+            "url": "data",
+            "materialize_icon": "grid_on"
+          },
+          {
+            "name": "Ratio Calculator",
+            "url": "ratio_calculator"
+          },
+          {
+            "name": "Ratio Finder",
+            "url": "ratio_finder"
+          }
+        ]
+      },
+      {
+        "name": "About",
+        "url": "about",
+        "materialize_icon": "help_outline"
+      }
+    ]
+  },
+  {
+    "name": "Knowledge",
+    "url": "knowledge",
+    "children": [
+      {
+        "name": "Bricks",
+        "url": "bricks",
+        "children": [
+          {
+            "name": "Basics",
+            "url": "basics"
+          },
+          {
+            "name": "Dimensions",
+            "url": "dimensions",
+            "materialize_icon": "image_aspect_ratio"
+          }
+        ]
+      },
+      {
+        "name": "Technic",
+        "url": "technic",
+        "children": [
+          {
+            "name": "Gears",
+            "url": "gears",
+            "materialize_icon": "settings"
+          },
+          {
+            "name": "Liftarms",
+            "url": "liftarms"
+          }
+        ]
+      }
+    ]
+  }
+]
