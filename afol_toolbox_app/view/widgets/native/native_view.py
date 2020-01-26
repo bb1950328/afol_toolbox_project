@@ -2,7 +2,7 @@
 from kivy.app import App
 from kivy.uix.button import Button
 
-from afol_toolbox_app.view.base.base_view import BaseView
+from afol_toolbox_app.view.widgets.base import BaseView
 import kivy
 
 kivy.require('1.0.1')

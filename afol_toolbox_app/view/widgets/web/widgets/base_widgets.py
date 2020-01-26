@@ -4,7 +4,7 @@ from collections import ItemsView
 from typing import Optional, Dict
 
 from afol_toolbox_app.model import util
-from afol_toolbox_app.view.web.listener import Listener, ClientListener, ServerListener
+from afol_toolbox_app.view.widgets.web import Listener, ClientListener, ServerListener
 
 
 class BaseWidget(abc.ABC):

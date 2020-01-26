@@ -1,9 +1,13 @@
 import abc
+import importlib
 import json
 import os
-from typing import Union, List
+from typing import List, Callable, Optional
 
 from django.utils.safestring import mark_safe
+
+import afol_toolbox_app
+from afol_toolbox_app.view.menu import view
 
 KEY_FILE_ICON = "file_icon"
 KEY_MATERIALIZE_ICON = "materialize_icon"
@@ -11,6 +15,7 @@ KEY_DESCRIPTION = "description"
 KEY_NAME = "name"
 KEY_URL = "url"
 KEY_CHILDREN = "children"
+KEY_VIEW_FUNC = "view_func"
 
 
 class MenuItem(abc.ABC):
@@ -135,19 +140,45 @@ class Folder(MenuItem):
 
 
 class Tool(MenuItem):
+    _view_func: Callable
+
+    @property
+    def view_func(self) -> Callable:
+        return self._view_func
+
+    @staticmethod
+    def _load_view_func(path: str) -> Callable:
+        module_name, func_name = path.rsplit(".", 1)
+        module_name = ".".join([afol_toolbox_app.__name__, view.__name__, module_name])
+        print(module_name)
+        module = importlib.import_module(module_name)
+        func = getattr(module, func_name)
+        return func
+
     def __init__(self, definition: dict, parent):
         if KEY_CHILDREN in definition:
             raise ValueError("the definition should not have a children list!")
         super().__init__(definition, parent)
+        if KEY_VIEW_FUNC in definition:
+            self._view_func = self._load_view_func(definition[KEY_VIEW_FUNC])
+        else:
+            self._view_func = lambda *args: ValueError("View function not defined")
 
 
 def get_menudefinition_path() -> str:
     return os.path.join(os.path.dirname(__file__), "menudefiniton.json")
 
 
-menu: List[MenuItem]
-with open(get_menudefinition_path()) as _f:
-    menu = [MenuItem.of_definition(de, None) for de in json.load(_f)]
+_menu: Optional[List[MenuItem]] = None
+
+
+def get_menu() -> List[MenuItem]:  # todo convert to property
+    global _menu
+    if _menu is None:
+        with open(get_menudefinition_path()) as _f:
+            _menu = [MenuItem.of_definition(de, None) for de in json.load(_f)]
+    return _menu
+
 
 if __name__ == '__main__':
     """
@@ -179,7 +210,7 @@ if __name__ == '__main__':
                 pr_tree(elem.children, new_prefix)
 
 
-    pr_tree(menu)
+    pr_tree(get_menu())
 
     for ie in range(len(values)):
         row = values[ie]

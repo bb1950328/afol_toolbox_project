@@ -1,5 +1,5 @@
 # coding=utf-8
-from afol_toolbox_app.view.base.base_view import BaseView
+from afol_toolbox_app.view.widgets.base import BaseView
 
 
 class WebView(BaseView):

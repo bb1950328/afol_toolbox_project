@@ -1,5 +1,5 @@
 # coding=utf-8
-from afol_toolbox_app.view.web.widgets.base_widgets import BaseWidget, SingleContainer
+from afol_toolbox_app.view.widgets.web import BaseWidget, SingleContainer
 
 
 class Button(BaseWidget, SingleContainer):

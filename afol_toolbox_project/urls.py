@@ -15,8 +15,28 @@ Including another URLconf
 """
 from django.urls import path
 
+from afol_toolbox_app.model.menu import menu_items
 from afol_toolbox_app.view import menu
 
+
+def get_urls_for_item(item: menu_items.MenuItem) -> list:
+    if isinstance(item, menu_items.Folder):
+        result = []
+        for it in item.children:
+            result.extend(get_urls_for_item(it))
+        return result
+    elif isinstance(item, menu_items.Tool):
+        return [path(item.absolute_url[1:], item.view_func)]
+
+
+def get_urls_from_menu() -> list:
+    result = []
+    for it in menu_items.get_menu():
+        result.extend(get_urls_for_item(it))
+    return result
+
+
 urlpatterns = [
-    path("", menu.view)
+    path("", menu.view),
+    *get_urls_from_menu(),
 ]

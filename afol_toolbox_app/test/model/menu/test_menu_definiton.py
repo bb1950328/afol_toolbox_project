@@ -24,6 +24,8 @@ class TestMenuDefinition(TestCase):
             print(f"WARNING: '{md_dict['name']}' has no icon!")
         if menu_items.KEY_CHILDREN in md_dict:
             self.check_menudefinition_list(md_dict[menu_items.KEY_CHILDREN])
+        else:
+            self.assertTrue(menu_items.KEY_VIEW_FUNC in md_dict)
 
     def test_menudefinition_format(self):
         with open(menu_items.get_menudefinition_path()) as f:
