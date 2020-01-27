@@ -20,7 +20,7 @@ def show_as_table(request, heads, types, data) -> dict:
                 ))
             elif dtype == "file_image":
                 res.append(mark_safe(
-                    f'<img alt="{value}" src="/static/img/{value}" />'
+                    f'<img alt="{value}" src="/static/img/1mp/{value}" />'
                 ))
             # todo add more types...
             else:

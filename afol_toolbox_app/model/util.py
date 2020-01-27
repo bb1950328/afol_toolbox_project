@@ -1,5 +1,8 @@
 # coding=utf-8
+import os
+import pathlib
 import random
+import shutil
 import time
 from abc import ABC, abstractmethod
 from decimal import Decimal
@@ -171,3 +174,25 @@ def get_execution_time(func, *args, **kwargs):
 def get_random_alphanumeric_string(length: int = 10):
     chars = [ALPHANUM_CHARS[random.randint(0, 35)] for i in range(length)]
     return "".join(chars)
+
+
+def get_all_files_in_directory(start=".", absolute=False):
+    result = []
+    for path, subdirs, files in os.walk(start):
+        result += [os.path.join(path, fname) for fname in files]
+    if absolute:
+        result = [os.path.abspath(rel) for rel in result]
+    return result
+
+
+def create_containing_folders_if_necessary(filepath: str) -> None:
+    pathlib.Path(os.path.dirname(filepath)).mkdir(parents=True, exist_ok=True)
+
+
+def clear_folder_content(folder: str):
+    for filename in os.listdir(folder):
+        filepath = os.path.join(folder, filename)
+        try:
+            shutil.rmtree(filepath)
+        except OSError:
+            os.remove(filepath)
