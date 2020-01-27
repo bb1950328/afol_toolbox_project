@@ -44,6 +44,10 @@ class Gear(util.Singleton):
         return self._teeth
 
     @property
+    def category(self):
+        return "Gear"
+
+    @property
     def data(self) -> dict:
         return GearData.gi()[self.__class__.__name__]
 
@@ -130,6 +134,10 @@ class TurntableGear(Gear):
     def __init__(self, teeth):
         super().__init__(teeth=teeth)
 
+    @property
+    def category(self):
+        return "Turntable"
+
     @staticmethod
     def get_all() -> List[Type[Gear]]:
         return [TurntableGear28, TurntableGear56, TurntableGear60]
@@ -193,6 +201,10 @@ class TurntableGear60(TurntableGear):
 class WormGear(Gear):
     def __init__(self):
         super().__init__(teeth=1)
+
+    @property
+    def category(self):
+        return "Worm Gear"
 
     @staticmethod
     def get_all() -> List[Type[Gear]]:

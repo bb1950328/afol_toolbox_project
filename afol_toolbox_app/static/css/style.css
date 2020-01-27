@@ -46,6 +46,25 @@ table {
 }
 
 table img {
-    height: 40px;
-    width: 40px;
+    height: 2rem;
+    width: 2rem;
 }
+
+/*img.big-on-hover:hover {
+
+}*/
+
+tr:hover img {
+    height: 5rem;
+    width: 5rem;
+}
+
+tr:hover td.bigger-on-hover {/* todo not for colspan or rowspan > 1*/
+    font-size: 3rem;
+    background-color: #aaaaaaaa;
+}
+
+/*
+td {
+    border: black solid thin !important;
+}*/
