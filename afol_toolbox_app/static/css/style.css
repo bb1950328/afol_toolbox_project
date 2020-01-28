@@ -1,5 +1,5 @@
 .file-icon.size0 {
-    height: 15px;/*TODO make all this values the same as materialize (1rem, 2rem, 4rem, 6rem)*/
+    height: 15px; /*TODO make all this values the same as materialize (1rem, 2rem, 4rem, 6rem)*/
     width: 15px;
 }
 
@@ -22,6 +22,12 @@ body {
     background-color: #333333;
     min-height: 100vh; /* TODO make the page at least as high as the window*/
     color: #dddddd;
+    display: flex;
+    flex-direction: column;
+}
+
+html, body {
+    height: 100%;
 }
 
 header {
@@ -34,11 +40,13 @@ main {
     margin-top: 0;
     margin-bottom: 0;
     padding: 0.5cm;
+    flex: 2 0 auto;
 }
 
 footer {
     background-color: #222222;
     margin-bottom: 0;
+    flex-shrink: 0;
 }
 
 table {
@@ -50,21 +58,98 @@ table img {
     width: 2rem;
 }
 
-/*img.big-on-hover:hover {
-
-}*/
-
 tr:hover img {
     height: 5rem;
     width: 5rem;
 }
 
-tr:hover td.bigger-on-hover {/* todo not for colspan or rowspan > 1*/
+tr:hover td.bigger-on-hover { /* todo not for colspan or rowspan > 1*/
     font-size: 3rem;
     background-color: #aaaaaaaa;
 }
 
+/*For navigation*/
+.nav-folder, .nav-leaf, .nav-folder-label {
+    z-index: 5000000;
+    width: 8rem;
+    height: 4rem;
+    font-weight: bold;
+}
+
+.nav-leaf:hover, .nav-folder-label:hover {
+    background-color: #bbbbbb;
+}
+
+.nav-folder .nav-folder { /*every >1st level folder*/
+    display: none;
+}
+
+.nav-folder .nav-leaf { /*every >1st level leaf*/
+    display: none;
+}
+
+.nav-folder:hover > .nav-folder, .nav-folder:hover > .nav-leaf, .nav-folder:hover > .nav-folder-label {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-folder > .nav-folder:hover > .nav-folder, .nav-folder > .nav-folder:hover > .nav-leaf {
+    position: relative;
+    left: 8rem;
+    top: -4rem;
+}
+
+nav {
+    display: flex !important;
+    flex-direction: row;
+    background-color: #444444 !important;
+    height: 4rem;
+    padding: 0;
+    margin: 0;
+}
+nav > div {
+    background-color: royalblue;
+}
+
+nav > div > div {
+    background-color: steelblue;
+}
+
+nav > div > div> div {
+    background-color: cornflowerblue;
+}
+
+nav > div > div> div> div {
+    background-color: dodgerblue;
+}
+
+nav > div > div> div> div> div {
+    background-color: #03a9f4;
+}
+
+
 /*
-td {
-    border: black solid thin !important;
+nav li {
+    position: relative;
+    display: block;
+}
+
+nav ul {
+    margin: 0;
+    padding: 0;
+    display: none;
+    list-style-type: none;
+}
+
+nav ul li {
+    display: block;
+}
+
+nav ul ul li:not(first-child) {
+    display: none;
+}
+
+nav ul:hover > li {
+    display: block;
+    background-color: #bbbbbb;
 }*/
