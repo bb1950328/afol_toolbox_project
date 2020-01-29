@@ -19,16 +19,5 @@ jobs:
           git config --global user.name 'bb1950328'
           git config --global user.email 'bb1950328@gmail.com'
           git add afol_toolbox_app/static/img
-      - name: Check if something changed
-        id: stage_check
-        run: git diff --cached --quiet ::set-output name=status::success
-        continue-on-error: true
-      - name: Dump steps context
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"
-      - name: Commit changes
-        if: steps.stage_check.outputs.status == 'failure' # exit code > 0 means something changed
-        run: |
-          git commit -am "Rescaled images (Github Action)"
-          git push
+      - name: Commit if something changed
+        run: ./.github/workflows/commit_if_changed.sh
