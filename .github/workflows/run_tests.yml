@@ -19,7 +19,9 @@ jobs:
       run: pip install -r requirements.txt
     - name: Run the tests
       run: coverage run -m unittest discover -v afol_toolbox_app.test 2>&1 | tee ./unittest_output.txt
-    - name: Upload coverage
+    - name: convert the coverage data
+      run: coverage combine
+    - name: Upload coverage data
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
