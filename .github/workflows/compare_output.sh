@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
-LINE=$(tac ./unittest_output.txt |egrep -m 1 .)  # last line
-[[ $LINE == *"OK"* ]] && exit 0 || exit -1
+
+if [ ! -z $(grep "OK" "./unittest_output.txt") ];
+then
+  exit 0;
+else
+  exit 1;
+fi
