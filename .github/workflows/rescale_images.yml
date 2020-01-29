@@ -13,7 +13,7 @@ jobs:
       - name: Install pillow
         run: pip install pillow
       - name: Rescale images
-        run: python ./afol_toolbox_app/static/img/img_scaler.py
+        run: python -m afol_toolbox_app.static.img.img_scaler
       - name: Configure git and add files
         run: |
           git config --global user.name 'bb1950328'
