@@ -18,7 +18,15 @@ jobs:
     - name: install pip requirements
       run: pip install -r requirements.txt
     - name: Run the tests
-      run: python -m unittest discover -v afol_toolbox_app.test 2>&1 | tee ./unittest_output.txt
+      run: coverage run -m unittest discover -v afol_toolbox_app.test 2>&1 | tee ./unittest_output.txt
+    - name: convert the coverage data
+      run: |
+        ls -l
+        coverage xml
+    - name: Upload coverage data
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
     - name: Check Output
       run: |
         chmod a+x ./.github/workflows/compare_output.sh
