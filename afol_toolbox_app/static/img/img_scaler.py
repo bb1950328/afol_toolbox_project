@@ -18,6 +18,9 @@ from afol_toolbox_app.model import util
 IMG_EXTENSIONS = ["jpg", "jpeg", "bmp", "png", ]
 
 if __name__ == '__main__':
+    if os.path.split(os.getcwd())[1] == "afol_toolbox_project":  # running from repo root
+        os.chdir("./afol_toolbox_app/static/img/")
+
     MP = 2 ** 20  # how many pixels are 1 megapixel
     target_folders = ["1mp", "2mp", "6mp"]
     target_pixels = [MP, 2 * MP, 6 * MP]
