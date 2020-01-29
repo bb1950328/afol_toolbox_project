@@ -30,8 +30,8 @@ class TestGears(TestCase):
         self.assertEqual(1234, Gear(1234).teeth)
 
     def test_image_name(self):
-        self.assertEqual("8T.png", Gear8.gi().image_name)
-        self.assertEqual("56T_Turntable.png", TurntableGear56.gi().image_name)
+        self.assertEqual("8T.svg", Gear8.gi().image_name)
+        self.assertEqual("56T_Turntable.svg", TurntableGear56.gi().image_name)
 
     def test_radius(self):
         self.assertEqual(4, Gear8.gi().radius_in_mm)
