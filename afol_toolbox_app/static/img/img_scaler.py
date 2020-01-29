@@ -20,6 +20,10 @@ IMG_EXTENSIONS = ["jpg", "jpeg", "bmp", "png", ]
 if __name__ == '__main__':
     if os.path.split(os.getcwd())[1] == "afol_toolbox_project":  # running from repo root
         os.chdir("./afol_toolbox_app/static/img/")
+        print(f"INFO: cd to {os.getcwd()}")
+        cd_called = True
+    else:
+        cd_called = False
 
     MP = 2 ** 20  # how many pixels are 1 megapixel
     target_folders = ["1mp", "2mp", "6mp"]
@@ -55,5 +59,8 @@ if __name__ == '__main__':
                 util.create_containing_folders_if_necessary(target_path)
                 orig_img.resize((t_x, t_y), Image.BICUBIC).save(target_path)
             print()
+    if cd_called:
+        os.chdir("../../..")
+        print(f"INFO: cd back to {os.getcwd()}")
 else:
     raise Exception("Do not import this file!!!")
