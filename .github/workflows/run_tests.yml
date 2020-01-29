@@ -22,7 +22,7 @@ jobs:
     - name: convert the coverage data
       run: |
         ls -l
-        coverage combine
+        coverage xml
     - name: Upload coverage data
       uses: codecov/codecov-action@v1
       with:
