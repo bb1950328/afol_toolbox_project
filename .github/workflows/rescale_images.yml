@@ -20,4 +20,6 @@ jobs:
           git config --global user.email 'bb1950328@gmail.com'
           git add afol_toolbox_app/static/img
       - name: Commit if something changed
-        run: ./.github/workflows/commit_if_changed.sh
+        run: |
+          chmod a+x ./.github/workflows/commit_if_changed.sh
+          ./.github/workflows/commit_if_changed.sh
