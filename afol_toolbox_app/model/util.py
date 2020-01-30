@@ -47,18 +47,28 @@ class Singleton(object):
         return cls.get_instance(*args, **kwargs)
 
 
+def has_comma(num: Union[Decimal, float]) -> bool:
+    if isinstance(num, float):
+        num = Decimal(num)
+    return num.as_integer_ratio()[1] != 1
+
+
 def expand_to_int_fraction(a: Union[int, float, Decimal], b: Union[int, float, Decimal]) -> Tuple[int, int]:
     """
     1, 2.5 -> 2, 5
     1, 2 -> 1, 2
     """
-    if not (isinstance(a, int) and isinstance(b, int)):  # todo testing
+    if not (isinstance(a, int) and isinstance(b, int)):
         if isinstance(a, (float, int)):
             a = Decimal(a)
         if isinstance(b, (float, int)):
             b = Decimal(b)
-        ratio = a / b
-        return ratio.as_integer_ratio()
+        factor = 1
+        while (has_comma(a) or has_comma(b)) and factor < 999_999_999:
+            a *= 10
+            b *= 10
+            factor *= 10
+        return shorten_fraction(int(a), int(b))
     else:
         return a, b
 

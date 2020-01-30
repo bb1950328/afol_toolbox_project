@@ -1,4 +1,5 @@
 # coding=utf-8
+import decimal
 import time
 from unittest import TestCase
 
@@ -19,7 +20,6 @@ class SiDummy(util.Singleton):
 
 class SubSiDummy(SiDummy):
     pass
-
 
 
 class TestUtil(TestCase):
@@ -99,3 +99,15 @@ class TestUtil(TestCase):
         ]
         no_duplicates = list(set(ha))
         self.assertEqual(sorted(ha), sorted(no_duplicates))
+
+    def test_expand_to_int_fraction1(self):
+        self.assertEqual((1, 2), util.expand_to_int_fraction(0.5, 1))
+
+    def test_expand_to_int_fraction2(self):
+        self.assertEqual((1, 4), util.expand_to_int_fraction(5.5, 22))
+
+    def test_expand_to_int_fraction3(self):
+        self.assertEqual((37, 60), util.expand_to_int_fraction(decimal.Decimal("3.7"), 6))
+
+    def test_expand_to_int_fraction4(self):
+        self.assertEqual((1, 5), util.expand_to_int_fraction(decimal.Decimal("1.234"), decimal.Decimal("6.17")))
