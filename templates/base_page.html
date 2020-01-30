@@ -9,37 +9,9 @@
     <link rel="stylesheet" href="{% static "css/material_icons.css" %}">
 </head>
 <body>
-
     <nav>
-        <div class="nav-folder">
-            <div class="nav-folder-label">Folder A</div>
-            <div class="nav-leaf">Leaf A.1</div>
-            <div class="nav-folder">
-                <div class="nav-folder-label">Folder A.A</div>
-                <div class="nav-leaf">Leaf A.A.1</div>
-                <div class="nav-leaf">Leaf A.A.2</div>
-                <div class="nav-folder">
-                    <div class="nav-folder-label">Folder A.A.A</div>
-                    <div class="nav-leaf">Leaf A.A.A.1</div>
-                    <div class="nav-leaf">Leaf A.A.A.2</div>
-                </div>
-                <div class="nav-leaf">Leaf A.A.3</div>
-            </div>
-            <div class="nav-leaf">Leaf A.2</div>
-        </div>
-        <div class="nav-folder">
-            <div class="nav-folder-label">Folder B</div>
-            <div class="nav-leaf">Leaf B.1</div>
-            <div class="nav-folder">
-                <div class="nav-folder-label">Folder B.A</div>
-                <div class="nav-leaf">Leaf B.A.1</div>
-                <div class="nav-leaf">Leaf B.A.2</div>
-                <div class="nav-leaf">Leaf B.A.3</div>
-            </div>
-            <div class="nav-leaf">Leaf B.2</div>
-        </div>
+        {{ menu }}
     </nav>
-
 <main>
     {% block content %}
         ProjectM306

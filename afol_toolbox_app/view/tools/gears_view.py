@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from afol_toolbox_app.model import gears
+from afol_toolbox_app.view.base_view import get_base_context
 from afol_toolbox_app.view.table_view import show_as_table
 
 
@@ -19,5 +20,6 @@ def data_table(request: WSGIRequest) -> HttpResponse:
             ["file_image", str, str, str],
             data
         ),
+        **get_base_context(request),
     }
     return render(request, "gear_table.html", context=context)
