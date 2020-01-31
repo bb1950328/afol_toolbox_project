@@ -16,7 +16,7 @@ def render_menu(items: List[Any]) -> str:
             html += render_menu(mi.children)
             html += "</div>"
         else:
-            html += f'<div class="nav-leaf">{mi.name}</div>'
+            html += f'<div class="nav-leaf"><a href="{mi.absolute_url}" >{mi.name}</a></div>'
     return mark_safe(html)
 
 

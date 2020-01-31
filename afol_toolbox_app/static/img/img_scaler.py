@@ -7,20 +7,18 @@ It replaces existing images
 """
 import math
 import os
-import pathlib
-import re
-from pprint import pprint
 
 from PIL import Image
 
-from afol_toolbox_app.model import util
+from afol_toolbox_app.model import util, logger
 
 IMG_EXTENSIONS = ["jpg", "jpeg", "bmp", "png", ]
+
 
 if __name__ == '__main__':
     if os.path.split(os.getcwd())[1] == "afol_toolbox_project":  # running from repo root
         os.chdir("./afol_toolbox_app/static/img/")
-        print(f"INFO: cd to {os.getcwd()}")
+        logger.log.info(f"cd to {os.getcwd()}")
         cd_called = True
     else:
         cd_called = False
@@ -32,35 +30,39 @@ if __name__ == '__main__':
 
     for t_folder in target_folders:
         t_path = os.path.abspath(os.path.join(".", t_folder))
-        print(f"INFO: Clearing {t_path}")
+        logger.log.info(f"Clearing {t_path}")
         util.clear_folder_content(t_path)
 
     for orig_path in originals:
         if orig_path.rsplit(".", 1) not in IMG_EXTENSIONS:
-            orig_abs_path = os.path.abspath(orig_path)
+            parts = orig_path.split("/")
+            subfolder_level = len(parts) - 2
+            dotdot = "../" * subfolder_level
             for t_folder in target_folders:
                 target_path = orig_path.replace("original", t_folder)
                 target_abs_path = os.path.abspath(target_path)
                 util.create_containing_folders_if_necessary(target_abs_path)
-                os.symlink(orig_abs_path, target_path)
-            print(f"INFO: Syminked {orig_path} because it's not a pixel-based image.")
+                link_destination = dotdot + orig_path[2:]
+                logger.log.debug(target_abs_path + " -> " + link_destination)
+                os.symlink(link_destination, target_abs_path)
+            logger.log.info(f"Syminked {orig_path} because it's not a pixel-based image.")
         else:
-            print("INFO: Resizing ", orig_path, end=" ")
+            msg = f"Resizing {orig_path} "
             orig_img = Image.open(orig_path)
             orig_x, orig_y = orig_img.size
             orig_pixels = orig_x * orig_y
-            print(f"from {orig_x}x{orig_y}", end="")
+            msg += f"from {orig_x}x{orig_y}"
             for i_target, tpixels in enumerate(target_pixels):
                 scale = math.sqrt(orig_pixels / tpixels)
                 t_x = int(orig_x / scale)
                 t_y = int(orig_y / scale)
-                print(f" to {t_x}x{t_y}", end="")
+                msg += f" to {t_x}x{t_y}"
                 target_path = orig_path.replace("original", target_folders[i_target])
                 util.create_containing_folders_if_necessary(target_path)
                 orig_img.resize((t_x, t_y), Image.BICUBIC).save(target_path)
-            print()
+            logger.log.info(msg)
     if cd_called:
         os.chdir("../../..")
-        print(f"INFO: cd back to {os.getcwd()}")
+        logger.log.info(f"cd back to {os.getcwd()}")
 else:
     raise Exception("Do not import this file!!!")

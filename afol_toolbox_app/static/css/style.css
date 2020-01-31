@@ -69,12 +69,12 @@ tr:hover td.bigger-on-hover { /* todo not for colspan or rowspan > 1*/
 }
 
 /*For navigation*/
-.nav-folder, .nav-leaf, .nav-folder-label {
+.nav-folder, .nav-leaf, .nav-folder-label, nav a {
     z-index: 5000000;
     width: 8rem;
     height: 4rem;
     font-weight: bold;
-    color: black;
+    color: black !important;
 }
 
 .nav-leaf, .nav-folder-label {
