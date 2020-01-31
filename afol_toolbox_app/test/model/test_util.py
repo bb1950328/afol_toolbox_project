@@ -22,6 +22,12 @@ class SubSiDummy(SiDummy):
     pass
 
 
+class NotAbstractFilter(util.Filter):
+
+    def accept(self, obj: object) -> bool:
+        raise ValueError("should not call this!!!")
+
+
 class TestUtil(TestCase):
 
     def setUp(self) -> None:
@@ -111,3 +117,36 @@ class TestUtil(TestCase):
 
     def test_expand_to_int_fraction4(self):
         self.assertEqual((1, 5), util.expand_to_int_fraction(decimal.Decimal("1.234"), decimal.Decimal("6.17")))
+
+    def test_expand_to_int_fraction5(self):
+        self.assertEqual((1, 5), util.expand_to_int_fraction(1, 5))
+
+    def test_filter_whitelist(self):
+        fi = NotAbstractFilter.of_whitelist([1, 3, 5])
+        self.assertTrue(fi.accept(1))
+        self.assertFalse(fi.accept(2))
+        self.assertTrue(fi.accept(3))
+        self.assertFalse(fi.accept(4))
+        self.assertTrue(fi.accept(5))
+
+    def test_filter_blacklist(self):
+        fi = NotAbstractFilter.of_blacklist([1, 3, 5])
+        self.assertFalse(fi.accept(1))
+        self.assertTrue(fi.accept(2))
+        self.assertFalse(fi.accept(3))
+        self.assertTrue(fi.accept(4))
+        self.assertFalse(fi.accept(5))
+
+    def test_get_execution_time(self):
+        expected = 0.5
+        actual = util.get_execution_time(lambda: time.sleep(expected))
+        self.assertAlmostEqual(expected, actual, delta=0.01)
+
+    def test_get_random_string(self):
+        res = util.get_random_alphanumeric_string(length=20)
+        self.assertEqual(20, len(res))
+        self.assertNotIn(" ", res)
+        for char in res:
+            is_num = ord("0") <= ord(char) <= ord("9")
+            is_lower_alpha = ord("a") <= ord(char) <= ord("z")
+            self.assertTrue(is_num or is_lower_alpha)

@@ -100,7 +100,7 @@ def get_prime_numbers_until(until: int):
     return [num for num in range(until) if result[num]][2:]
 
 
-class Filter(ABC):  # todo testing
+class Filter(ABC):
     @abstractmethod
     def accept(self, obj: object) -> bool:
         pass
