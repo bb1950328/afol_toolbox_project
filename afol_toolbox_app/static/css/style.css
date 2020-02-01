@@ -76,6 +76,19 @@ tr:hover td.bigger-on-hover { /* todo not for colspan or rowspan > 1*/
     background-color: #aaaaaaaa;
 }
 
+.ratio {
+    font-size: 2rem;
+    color: blue;
+}
+
+.ratio-overdrive {
+    color: red;
+}
+
+.ratio-reduction {
+    color: green;
+}
+
 #combination_table {
     margin-bottom: 1em;
 }

@@ -18,7 +18,9 @@
     <a class="waves-effect waves-light btn" onclick="remove_all_combinations()"><i
             class="material-icons">delete_sweep</i>Remove All</a>
     <br>
-    <b>Total Gear Ratio: </b><pre id="total_ratio"></pre>
+    <span class="total_ratio_text">Total Gear Ratio: </span>
+    <span class="ratio" id="total_ratio"></span>
+    <span class="total_ratio_text" id="ratio_explaination"></span>
     <script>
         const gears_data = {{ gears_data }};
         const gear_groups = {{ gear_groups }};
@@ -57,6 +59,7 @@
 
             td_ratio.id = row_id + "_ratio";
             td_ratio.classList.add("row_ratio");
+            td_ratio.classList.add("ratio");
             update_combination_ratio(row_id);
             $(document).ready(function () {
                 $('select').formSelect();
@@ -92,30 +95,42 @@
             return div;
         }
 
+        function set_ratio_color(element, driver, follower) {
+            element.classList.remove("ratio-overdrive");
+            element.classList.remove("ratio-reduction");
+            if (driver > follower) {
+                element.classList.add("ratio-overdrive");
+            } else if (follower > driver) {
+                element.classList.add("ratio-reduction");
+            }
+        }
+
+        function get_ratio_text(driver, follower) {
+            let a, b;
+            let text = driver + ":" + follower;
+            if (driver > follower) {
+                a = 1;
+                b = follower / driver;
+            } else {
+                a = driver / follower;
+                b = 1;
+            }
+            if (driver !== 1 && follower !== 1) {
+                text += " = " + round_number2places(a) + ":" + round_number2places(b)
+            }
+            return text;
+        }
+
         function update_combination_ratio(row_id) {
-            let driver_select = document.getElementById(row_id + "select_driver");
-            let follower_select = document.getElementById(row_id + "select_follower");
-            let d = driver_select.value;
-            let f = follower_select.value;
+            let df = get_selected_teeth(row_id);
+            let d = df[0];
+            let f = df[1];
             let shorten = shorten_fraction(d, f);
             d = shorten[0];
             f = shorten[1];
-
-            let a, b;
-            if (d > f) {
-                a = 1;
-                b = f / d;
-            } else {
-                a = d / f;
-                b = 1;
-            }
-
             let ratio_td = document.getElementById(row_id + "_ratio");
-            ratio_td.innerText = d + ":" + f;
-            if (d !== 1 && f !== 1) {
-                ratio_td.innerText += " = " + round_number2places(a) + ":" + round_number2places(b)
-            }
-
+            ratio_td.innerText = get_ratio_text(d, f);
+            set_ratio_color(ratio_td, d, f);
             recalculate();
         }
 
@@ -127,10 +142,39 @@
             add_combination();
         }
 
+        function get_selected_teeth(row_id) {
+            let driver_select = document.getElementById(row_id + "select_driver");
+            let follower_select = document.getElementById(row_id + "select_follower");
+            let d = driver_select.value;
+            let f = follower_select.value;
+            return [d, f];
+        }
+
         function recalculate() {
-            console.log("TODO recalculate");
-            let total_pre = document.getElementById("total_ratio");
-            let row_ratios = document.getElementsByClassName("row_ratio");
+            let total_span = document.getElementById("total_ratio");
+            let trs = document.getElementById("combination_tbody").children;
+            let a = 1;
+            let b = 1;
+            for (let i = 0; i < trs.length; i++) {
+                let row_id = trs[i].id;
+                let df = get_selected_teeth(row_id);
+                a *= df[0];
+                b *= df[1];
+            }
+            let short = shorten_fraction(a, b);
+            a = short[0];
+            b = short[1];
+            total_span.innerText = get_ratio_text(a, b);
+            let expl = document.getElementById("ratio_explaination");
+            if (a > b) {
+                expl.innerText = "Speed increased, Torque decreased (Overdrive)"
+            }else if (a < b) {
+                expl.innerText = "Speed decreased, Torque increased (Reduction)"
+            } else {
+                expl.innerText = "";
+            }
+            set_ratio_color(total_span, a, b);
+
         }
 
         add_combination();
