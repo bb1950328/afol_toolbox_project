@@ -6,4 +6,4 @@ from afol_toolbox_app.view.base_view import get_base_context
 
 
 def view(request: WSGIRequest) -> HttpResponse:
-    return render(request, "menu.html", get_base_context(request))
+    return render(request, "index.html", get_base_context(request))

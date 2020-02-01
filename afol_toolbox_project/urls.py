@@ -16,7 +16,7 @@ Including another URLconf
 from django.urls import path
 
 from afol_toolbox_app.model.menu import menu_items
-from afol_toolbox_app.view import menu
+from afol_toolbox_app.view import index
 
 
 def get_urls_for_item(item: menu_items.MenuItem) -> list:
@@ -37,6 +37,6 @@ def get_urls_from_menu() -> list:
 
 
 urlpatterns = [
-    path("", menu.view),
+    path("", index.view),
     *get_urls_from_menu(),
 ]

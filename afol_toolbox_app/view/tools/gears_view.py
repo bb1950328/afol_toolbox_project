@@ -1,7 +1,10 @@
 # coding=utf-8
+import json
+
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.safestring import mark_safe
 
 from afol_toolbox_app.model import gears
 from afol_toolbox_app.view.base_view import get_base_context
@@ -24,3 +27,23 @@ def data_table(request: WSGIRequest) -> HttpResponse:
         **get_base_context(request),
     }
     return render(request, "gear_table.html", context=context)
+
+
+def ratio_calculator(request: WSGIRequest) -> HttpResponse:
+    gears_data = []
+    groups = []
+    for group, glist in (("Worm Gears", gears.WormGear.get_all()),
+                         ("Gears", gears.NormalGear.get_all()),
+                         ("Turntables", gears.TurntableGear.get_all())):
+        gr_data = []
+        for g in glist:
+            g = g.gi()
+            gr_data.append({"name": g.display_name, "teeth": g.teeth})
+        gears_data.append(gr_data)
+        groups.append(group)
+    context = {
+        **get_base_context(request),
+        "gears_data": mark_safe(json.dumps(gears_data)),
+        "gear_groups": mark_safe(json.dumps(groups)),
+    }
+    return render(request, "ratio_calculator.html", context)

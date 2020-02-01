@@ -1,0 +1,138 @@
+{% extends 'base_page.html' %}
+{% block title %}Gear Ratio Calculator{% endblock %}
+{% block content %}
+    <table id="combination_table">
+        <caption></caption>
+        <thead>
+        <tr>
+            <th id="th_driver">Driver</th>
+            <th id="th_follower">Follower</th>
+            <th id="th_ratio">Ratio</th>
+            <th id="th_buttons"></th>
+        </tr>
+        </thead>
+        <tbody id="combination_tbody">
+        </tbody>
+    </table>
+    <a class="waves-effect waves-light btn" onclick="add_combination()"><i class="material-icons">add</i>Add Combination</a>
+    <a class="waves-effect waves-light btn" onclick="remove_all_combinations()"><i
+            class="material-icons">delete_sweep</i>Remove All</a>
+    <br>
+    <b>Total Gear Ratio: </b><pre id="total_ratio"></pre>
+    <script>
+        const gears_data = {{ gears_data }};
+        const gear_groups = {{ gear_groups }};
+
+        function add_combination() {
+            let tbody = document.getElementById("combination_tbody");
+            let tr = document.createElement("tr");
+            let td_driver = document.createElement("td");
+            let td_follower = document.createElement("td");
+            let td_ratio = document.createElement("td");
+            let td_buttons = document.createElement("td");
+            tbody.appendChild(tr);
+            tr.appendChild(td_driver);
+            tr.appendChild(td_follower);
+            tr.appendChild(td_ratio);
+            tr.appendChild(td_buttons);
+
+            let row_id = "tr" + tbody.childElementCount;
+            tr.id = row_id;
+            td_driver.appendChild(create_gear_select(row_id, "driver"));
+            td_follower.appendChild(create_gear_select(row_id, "follower"));
+
+            let del_btn = document.createElement("i");
+            del_btn.classList.add("material-icons");
+            del_btn.classList.add("hoverable");
+            del_btn.innerText = "delete_forever";
+            del_btn.onclick = function () {
+                if (document.getElementById("combination_tbody").childElementCount <= 1) {
+                    return; // user can't remove last combination
+                }
+                let tr_to_del = document.getElementById(row_id);
+                tr_to_del.parentElement.removeChild(tr_to_del);
+                recalculate();
+            };
+            td_buttons.appendChild(del_btn);
+
+            td_ratio.id = row_id + "_ratio";
+            td_ratio.classList.add("row_ratio");
+            update_combination_ratio(row_id);
+            $(document).ready(function () {
+                $('select').formSelect();
+            });
+        }
+
+        function create_gear_select(row_id, select_id) {
+            let div = document.createElement("div");
+            div.classList.add("input-field");
+            div.classList.add("col");
+            div.classList.add("s12");
+            let sel = document.createElement("select");
+            sel.id = row_id + "select_" + select_id;
+            for (let i_group = 0; i_group < gear_groups.length; i_group++) {
+                let group_name = gear_groups[i_group];
+                let optgroup = document.createElement("optgroup");
+                optgroup.label = group_name;
+                let gear_list = gears_data[i_group];
+                for (let i_gear = 0; i_gear < gear_list.length; i_gear++) {
+                    let g = gear_list[i_gear];
+                    let opt = document.createElement("option");
+                    opt.value = g["teeth"];
+                    opt.innerText = g["name"];
+                    optgroup.appendChild(opt);
+                }
+                sel.appendChild(optgroup);
+            }
+            sel.value = "8";
+            sel.onchange = function () {
+                update_combination_ratio(row_id);
+            };
+            div.appendChild(sel);
+            return div;
+        }
+
+        function update_combination_ratio(row_id) {
+            let driver_select = document.getElementById(row_id + "select_driver");
+            let follower_select = document.getElementById(row_id + "select_follower");
+            let d = driver_select.value;
+            let f = follower_select.value;
+            let shorten = shorten_fraction(d, f);
+            d = shorten[0];
+            f = shorten[1];
+
+            let a, b;
+            if (d > f) {
+                a = 1;
+                b = f / d;
+            } else {
+                a = d / f;
+                b = 1;
+            }
+
+            let ratio_td = document.getElementById(row_id + "_ratio");
+            ratio_td.innerText = d + ":" + f;
+            if (d !== 1 && f !== 1) {
+                ratio_td.innerText += " = " + round_number2places(a) + ":" + round_number2places(b)
+            }
+
+            recalculate();
+        }
+
+        function remove_all_combinations() {
+            let tbody = document.getElementById("combination_tbody");
+            while (tbody.lastChild) {
+                tbody.removeChild(tbody.lastChild);
+            }
+            add_combination();
+        }
+
+        function recalculate() {
+            console.log("TODO recalculate");
+            let total_pre = document.getElementById("total_ratio");
+            let row_ratios = document.getElementsByClassName("row_ratio");
+        }
+
+        add_combination();
+    </script>
+{% endblock %}

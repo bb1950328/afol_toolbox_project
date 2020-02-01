@@ -17,7 +17,8 @@
           },
           {
             "name": "Ratio Calculator",
-            "url": "ratio_calculator"
+            "url": "ratio_calculator",
+            "view_func": "tools.gears_view.ratio_calculator"
           },
           {
             "name": "Ratio Finder",

@@ -7,7 +7,7 @@ from typing import List, Callable, Optional
 from django.utils.safestring import mark_safe
 
 import afol_toolbox_app
-from afol_toolbox_app.view.menu import view
+from afol_toolbox_app.view.index import view
 
 KEY_FILE_ICON = "file_icon"
 KEY_MATERIALIZE_ICON = "materialize_icon"

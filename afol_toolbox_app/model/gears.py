@@ -48,6 +48,10 @@ class Gear(util.Singleton):
         return "Gear"
 
     @property
+    def display_name(self):
+        return f"{self.category} {self.teeth}T"
+
+    @property
     def data(self) -> dict:
         return GearData.gi()[self.__class__.__name__]
 
@@ -205,6 +209,10 @@ class WormGear(Gear):
     @property
     def category(self):
         return "Worm Gear"
+
+    @property
+    def display_name(self):
+        return f"Worm Gear"
 
     @staticmethod
     def get_all() -> List[Type[Gear]]:
