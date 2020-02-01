@@ -68,6 +68,10 @@ tr:hover td.bigger-on-hover { /* todo not for colspan or rowspan > 1*/
     background-color: #aaaaaaaa;
 }
 
+#at_table th i.material-icons:hover {
+    background-color: #aaaaaaaa;
+}
+
 /*For navigation*/
 .nav-folder, .nav-leaf, .nav-folder-label, nav a {
     z-index: 5000000;

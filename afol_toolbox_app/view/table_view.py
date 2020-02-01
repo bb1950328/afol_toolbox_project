@@ -1,8 +1,21 @@
 # coding=utf-8
+from typing import Any
+from typing import List
+from typing import Optional
+
+from django.core.handlers.wsgi import WSGIRequest
 from django.utils.safestring import mark_safe
+import json
+
+ICON_FALSE = "clear"
+ICON_TRUE = "check"
 
 
-def show_as_table(heads, types, data, group_same=True, bigger_on_hover=True) -> dict:
+def show_as_table_server(request: WSGIRequest,
+                         heads, types, data,
+                         group_same=True, bigger_on_hover=True,
+                         sort=None) -> dict:
+    sort = request.GET.get("sort", sort)
     table = "<table><thead><tr>"
     for h in heads:
         table += f"\n<th>{h}</th>"
@@ -15,7 +28,7 @@ def show_as_table(heads, types, data, group_same=True, bigger_on_hover=True) -> 
             dtype = types[i_col]
             if dtype == bool:
                 cell = f'<i class="material-icons" style="color: {"green" if value else "red"}">' \
-                       f'{"tick" if value else "cross"}</i>'  # todo lookup correct icon names
+                       f'{ICON_TRUE if value else ICON_FALSE}</i>'
 
             elif dtype == "file_image":
                 cell = f'<img alt="{value}" src="/static/img/1mp/{value}" />'
@@ -55,3 +68,29 @@ def show_as_table(heads, types, data, group_same=True, bigger_on_hover=True) -> 
         table += "\n</tr>"
     table += "\n</tbody></table>"
     return mark_safe(table)
+
+
+@mark_safe
+def show_as_table_client(heads: List[str],
+                         types: List[str],
+                         units: List[Optional[str]],
+                         data: List[List[Any]],
+                         sorted_column=None) -> str:
+    sort_states = [0] * len(heads)  # 0=none, 1=asc, 2=desc
+    if not sorted_column:
+        if "number" in types:
+            sorted_column = types.index("number")
+        elif "str" in types:
+            sorted_column = types.index("str")
+        else:
+            sorted_column = 0
+    sort_states[sorted_column] = 1
+    html = '<table id="at_table">\n<thead id="at_thead"></thead>\n<tbody id="at_tbody"></tbody>\n</table>\n<script>\n'
+    html += f'const heads = {json.dumps(heads)};\n'
+    html += f'const types = {json.dumps(types)};\n'
+    html += f'const value_units = {json.dumps(units)};\n'
+    html += f'var sort_states = {json.dumps(sort_states)};\n'
+    html += f'var cells = {json.dumps(data)};\n'
+    html += "render_table();"
+    html += "</script>"
+    return html
