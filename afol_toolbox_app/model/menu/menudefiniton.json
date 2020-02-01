@@ -22,7 +22,8 @@
           },
           {
             "name": "Ratio Finder",
-            "url": "ratio_finder"
+            "url": "ratio_finder",
+            "view_func": "tools.gears_view.ratio_finder"
           }
         ]
       },

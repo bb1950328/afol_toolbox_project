@@ -1,0 +1,11 @@
+{% extends 'base_page.html' %}
+{% block title %}Gear Ratio Finder{% endblock %}
+{% block content %}
+    <div class="input-field row s12">
+        <label for="input_a">Driver</label><input id="input_a" type="number" min="1" step="1" value="1">
+    </div>
+    <div class="input-field row s12">
+        <label for="input_b">Follower</label><input id="input_b" type="number" min="1" step="1" value="1">
+    </div>
+    {{ result_table }}
+{% endblock %}

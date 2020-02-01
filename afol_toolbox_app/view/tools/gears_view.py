@@ -47,3 +47,10 @@ def ratio_calculator(request: WSGIRequest) -> HttpResponse:
         "gear_groups": mark_safe(json.dumps(groups)),
     }
     return render(request, "ratio_calculator.html", context)
+
+
+def ratio_finder(request: WSGIRequest) -> HttpResponse:
+    context = {
+        **get_base_context(request),
+    }
+    return render(request, "ratio_finder.html", context)
