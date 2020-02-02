@@ -50,7 +50,35 @@ def ratio_calculator(request: WSGIRequest) -> HttpResponse:
 
 
 def ratio_finder(request: WSGIRequest) -> HttpResponse:
+    post = {"csrfmiddlewaretoken": "Dd5W1ToBlgGB0U7BO1t0CopCggOhgqJYjViRye55e4kYOkDEqpZdj8mQyPCSSnYS",
+            "select_ratio_format": "a_b", "input_a": "1", "input_b": "1", "select_max_gears": "2", "max_results": "19",
+            "check_no_worm": "on", "combination_ratio_min": "1", "combination_ratio_max": "100"}
     context = {
         **get_base_context(request),
     }
+    if len(post):  # todo clear post after
+        input_a = float(post["input_a"])
+        input_b = float(post["input_b"])
+        max_combinations = int(post["select_max_gears"]) // 2
+        max_results = int(float(post["max_results"]))
+        max_deviation = float(post["max_deviation"])
+        no_worm = post["check_no_worm"] == "on"
+        no_turntables = post["check_no_turntables"] == "on"
+        combi_ratio_min = int(post["combination_ratio_min"])
+        combi_ratio_max = int(post["combination_ratio_max"])
+        ratio = gears.GearRatio.of_ratio(input_a, input_b)
+        ratio_filter = gears.Gear.AllGearsFilter.gi()
+        combi_filter = gears.GearCombination.AllGearCombinationsFilter.gi()
+        result = gears.CombinationFinder.all_combination_chains(ratio=ratio,
+                                                                max_results=max_results,
+                                                                max_chain_length=max_combinations,
+                                                                max_deviation=max_deviation,
+                                                                ratio_filter=ratio_filter,
+                                                                combination_fltr=combi_filter)
+        context["result_table"] = show_as_table_client(
+            heads=["Deviation", ],
+            types=["number", ],
+            units=["%", ],
+            data=result,
+        )
     return render(request, "ratio_finder.html", context)

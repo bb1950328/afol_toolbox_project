@@ -93,6 +93,10 @@ tr:hover td.bigger-on-hover { /* todo not for colspan or rowspan > 1*/
     margin-bottom: 1em;
 }
 
+input {
+    color: #ffffff;
+}
+
 /*For navigation*/
 .nav-folder, .nav-leaf, .nav-folder-label, nav a {
     z-index: 5000000;

@@ -2,9 +2,9 @@ pillow
 bokeh
 Django
 websockets==8.1
-kivy
 mysql-connector==2.2.9
 pytz==2019.3
 sqlparse==0.3.0
 cachetools
 coverage
+markdown2

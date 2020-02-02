@@ -1,11 +1,146 @@
 {% extends 'base_page.html' %}
 {% block title %}Gear Ratio Finder{% endblock %}
 {% block content %}
-    <div class="input-field row s12">
-        <label for="input_a">Driver</label><input id="input_a" type="number" min="1" step="1" value="1">
-    </div>
-    <div class="input-field row s12">
-        <label for="input_b">Follower</label><input id="input_b" type="number" min="1" step="1" value="1">
+    <div class="row">
+        <form class="col s12 m12 l6" method="post" id="ratiofinder_form">
+            {% csrf_token %}
+            <table>
+                <caption></caption>
+                <thead>
+                <tr>
+                    <th colspan="2">Settings</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <label for="select_ratio_format">Ratio Format</label>
+                        <div class="input-field col s12">
+                            <select id="select_ratio_format" onchange="refresh_ratio_display()" name="select_ratio_format">
+                                <option value="a_b">A:B Ratio</option>
+                                <option value="1_b">1:B Ratio</option>
+                                <option value="a_1">A:1 Ratio</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td id="td_ratio_a">
+                        <div class="input-field col s12">
+                            <label for="input_a">A</label>
+                            <input id="input_a" type="number" min="1" step="1" value="1" name="input_a">
+                        </div>
+                    </td>
+                    <td id="td_ratio_colon">
+                        :
+                    </td>
+                    <td id="td_ratio_b">
+                        <div class="input-field col s12">
+                            <label for="input_b">B</label>
+                            <input id="input_b" type="number" min="1" step="1" value="1" name="input_b">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Maximum Deviation in %</td>
+                    <td colspan="3">
+                        <div class="input-field col s12">
+                            <input type="number" min="0" value="1" id="max_deviation" name="max_deviation">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Maximum Number of Gears</td>
+                    <td colspan="3">
+                        <div class="input-field col s12">
+                            <select id="select_max_gears" name="select_max_gears">
+                                <option value="2">2</option>
+                                <option value="4">4</option>
+                                <option value="6">6 (may take a while)</option>
+                                <option value="8">8 (takes really long)</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Maximum Results</td>
+                    <td colspan="3">
+                        <div class="input-field col s12">
+                            <input type="number" min="1" max="64" value="12" id="max_results" name="max_results">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Gear Filters</td>
+                    <td>
+                        <label for="check_no_worm">No Worm Gear</label>
+                        <div class="input-field col s12">
+                            <input type="checkbox" id="check_no_worm" name="check_no_worm" value="off"><!-- TODO show checkbox -->
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <label for="check_no_turntables">No Turntables</label>
+                        <div class="input-field col s12">
+                            <input type="checkbox" id="check_no_turntables" name="check_no_turntables" value="on"><!-- TODO show checkbox -->
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Gear Combination Filter</td>
+                    <td>
+                        <label for="combination_ratio_min">Min. Factor</label>
+                        <div class="input-field col s12">
+                            <input id="combination_ratio_min" type="number" min="1" max="64" value="1" name="combination_ratio_min">
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <label for="combination_ratio_max">Max. Factor</label>
+                        <div class="input-field col s12">
+                            <input id="combination_ratio_max" type="number" min="1" max="100" value="100" name="combination_ratio_max">
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="input-field col s6">
+                <a class="waves-effect waves-light btn" onclick="submit_form()">
+                    <i class="material-icons">find_replace</i> Find Combinations
+                </a>
+            </div>
+        </form>
     </div>
     {{ result_table }}
+    <script>function submit_form() {
+        let form = document.getElementById("ratiofinder_form");
+        form.submit();
+    }
+
+    $(document).ready(function () {
+            $('select').formSelect();
+        });
+
+        function refresh_ratio_display() {
+            let sel = document.getElementById("select_ratio_format");
+            let input_a = document.getElementById("input_b");
+            let input_b = document.getElementById("input_a");
+            switch (sel.value) {
+                case "a_b":
+                    input_a.disabled = false;
+                    input_b.disabled = false;
+                    break;
+                case "a_1":
+                    input_b.value = 1;
+                    input_a.disabled = true;
+                    input_b.disabled = false;
+                    break;
+                case "1_b":
+                    input_a.value = 1;
+                    input_b.disabled = true;
+                    input_a.disabled = false;
+                    break;
+            }
+        }
+
+        refresh_ratio_display();
+    </script>
 {% endblock %}

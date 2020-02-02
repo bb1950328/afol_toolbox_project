@@ -482,7 +482,7 @@ class CombinationFinder(object):
             -> List[Tuple[float, Set[GearCombination]]]:
         """
         max_deviation: 0.01 = 1%
-        returns a list of (deviation, set of combinations) tuples
+        returns a list of (deviation, set of combinations) tuples, sorted by deviation ascending
         """
         result = []
         all_possible = CombinationFinder.all_possible_combinations(gear_filter)
