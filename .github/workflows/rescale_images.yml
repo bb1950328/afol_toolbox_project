@@ -1,8 +1,5 @@
 name: RescaleAllImages
-on: 
-  push:
-    paths:
-    - '/afol_toolbox_app/static/img/original/**'
+on: push
 jobs:
   report:
     runs-on: ubuntu-latest
