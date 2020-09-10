@@ -37,15 +37,12 @@ if __name__ == '__main__':
     for orig_path in originals:
         if orig_path.rsplit(".", 1) not in IMG_EXTENSIONS:
             parts = orig_path.replace("\\", "/").split("/")
-            subfolder_level = len(parts) - 2
-            dotdot = "../" * subfolder_level
             for t_folder in target_folders:
                 target_path = orig_path.replace("original", t_folder)
                 target_abs_path = os.path.abspath(target_path)
                 util.create_containing_folders_if_necessary(target_abs_path)
-                destination = dotdot + orig_path[2:]
-                logger.log.debug(target_abs_path + " -> " + destination)
-                shutil.copyfile(destination, target_abs_path)
+                logger.log.debug("copy " + orig_path + " -> " + target_abs_path)
+                shutil.copyfile(orig_path, target_abs_path)
             logger.log.info(f"copied {orig_path} because it's not a pixel-based image.")
         else:
             msg = f"Resizing {orig_path} "
