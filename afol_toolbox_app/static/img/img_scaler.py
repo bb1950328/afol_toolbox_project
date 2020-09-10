@@ -7,6 +7,7 @@ It replaces existing images
 """
 import math
 import os
+import shutil
 
 from PIL import Image
 
@@ -42,10 +43,10 @@ if __name__ == '__main__':
                 target_path = orig_path.replace("original", t_folder)
                 target_abs_path = os.path.abspath(target_path)
                 util.create_containing_folders_if_necessary(target_abs_path)
-                link_destination = dotdot + orig_path[2:]
-                logger.log.debug(target_abs_path + " -> " + link_destination)
-                os.symlink(link_destination, target_abs_path)
-            logger.log.info(f"Syminked {orig_path} because it's not a pixel-based image.")
+                destination = dotdot + orig_path[2:]
+                logger.log.debug(target_abs_path + " -> " + destination)
+                shutil.copyfile(destination, target_abs_path)
+            logger.log.info(f"copied {orig_path} because it's not a pixel-based image.")
         else:
             msg = f"Resizing {orig_path} "
             orig_img = Image.open(orig_path)
