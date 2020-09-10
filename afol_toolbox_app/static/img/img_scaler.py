@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     for orig_path in originals:
         if orig_path.rsplit(".", 1) not in IMG_EXTENSIONS:
-            parts = orig_path.split("/")
+            parts = orig_path.replace("\\", "/").split("/")
             subfolder_level = len(parts) - 2
             dotdot = "../" * subfolder_level
             for t_folder in target_folders:
